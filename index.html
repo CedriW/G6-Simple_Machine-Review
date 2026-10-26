@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Simple Machines Lab - Grade 6</title>
+<style>
+:root{
+  --bg:#eef3f9; --card:#ffffff; --ink:#1f2a44; --muted:#5b6b88; --line:#d6dfeb;
+  --roll:#e9781c; --ramp:#239a60; --lever:#7356d1; --pulley:#2a76d2; --quiz:#d93d73;
+  --accent:var(--roll); --tint:#fff3e6;
+}
+*{box-sizing:border-box}
+html{font-size:clamp(15px,1.2vw,26px)}
+html,body{margin:0;height:100%}
+body{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;
+  font-family:"Segoe UI","Nunito","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+svg{font-family:inherit}
+/* ---------- header ---------- */
+.top{display:flex;align-items:center;gap:.8rem;padding:.5rem 1rem;background:#fff;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.6rem;margin-right:auto}
+.logo{width:2.7rem;height:2.7rem;flex:none}
+.title{font-weight:800;font-size:1.3rem;line-height:1.1}
+.sub{font-size:.85rem;color:var(--muted);font-weight:600}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+.tab{display:flex;align-items:center;gap:.45rem;font:inherit;font-weight:700;font-size:1rem;padding:.45rem 1rem;min-height:2.9rem;
+  border-radius:999px;border:2px solid var(--line);background:#f7f9fc;color:var(--ink);cursor:pointer}
+.tab svg{width:1.5rem;height:1.5rem;flex:none}
+.tab.on{background:var(--c);border-color:var(--c);color:#fff}
+.fs{display:flex;align-items:center;gap:.4rem;font:inherit;font-weight:700;font-size:.95rem;min-height:2.9rem;padding:.4rem .9rem;border-radius:.8rem;
+  border:2px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer}
+.fs svg{width:1.3rem;height:1.3rem}
+/* ---------- layout ---------- */
+main{flex:1;min-height:0;padding:.8rem;display:flex}
+.panel{display:none;flex:1;min-height:0;width:100%;gap:.8rem;grid-template-columns:minmax(0,1.75fr) minmax(19rem,1fr)}
+.panel.on{display:grid}
+.panel[data-m=rollers]{--accent:var(--roll);--tint:#fff1e3}
+.panel[data-m=ramps]{--accent:var(--ramp);--tint:#e6f6ee}
+.panel[data-m=levers]{--accent:var(--lever);--tint:#efeafc}
+.panel[data-m=pulleys]{--accent:var(--pulley);--tint:#e6f0fc}
+.panel[data-m=quiz]{--accent:var(--quiz);--tint:#fde8ef}
+.card{background:var(--card);border-radius:1rem;box-shadow:0 2px 8px rgba(30,50,90,.08);border:1px solid var(--line)}
+.stagecol{display:flex;flex-direction:column;min-height:0;gap:.6rem}
+.stagehead{padding:.5rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem;border-top:.35rem solid var(--accent)}
+.stagehead h2{font-size:1.35rem;margin:0}
+.stagehead p{margin:.1rem 0 0;color:var(--muted);font-size:.95rem}
+.pill{font-weight:800;padding:.35rem .9rem;border-radius:999px;background:var(--tint);color:var(--accent);font-size:1rem;white-space:nowrap;border:2px solid var(--accent)}
+.pill.good{background:#e3f6ea;color:#18864b;border-color:#18864b}
+.stage{flex:1;min-height:0;position:relative}
+.stage>svg{position:absolute;inset:.35rem;width:calc(100% - .7rem);height:calc(100% - .7rem);display:block}
+.readouts{display:flex;flex-wrap:wrap;gap:.6rem}
+.stat{flex:1 1 8.5rem;padding:.45rem .8rem;min-width:0}
+.stat .lab{font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .val{font-size:1.6rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side{overflow-y:auto;display:flex;flex-direction:column;gap:.65rem;min-height:0;padding-right:.15rem;-webkit-overflow-scrolling:touch}
+.sec{padding:.75rem .95rem}
+.sec h3{margin:0 0 .5rem;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.sec h3 .v{color:var(--accent);font-weight:800}
+.btns{display:flex;flex-wrap:wrap;gap:.45rem}
+.btn{font:inherit;font-size:.95rem;font-weight:700;min-height:2.8rem;padding:.35rem .8rem;border-radius:.7rem;border:2px solid var(--line);
+  background:#f7f9fc;color:var(--ink);cursor:pointer;flex:1 1 auto;touch-action:manipulation;line-height:1.15}
+.btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.reset{background:#fff;border-color:#d94b2b;color:#c63d1f}
+.btn.small{min-height:2.3rem;font-size:.85rem;flex:0 0 auto;margin-top:.5rem}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:default}
+.ico{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.25em}
+.stepper{display:flex;align-items:center;gap:.5rem;margin:.25rem 0}
+.stepper .lbl{flex:1;font-weight:700}
+.stepper .btn{flex:0 0 2.9rem;font-size:1.3rem;padding:0}
+.stepper .num{min-width:2.2rem;text-align:center;font-size:1.4rem;font-weight:800;color:var(--accent)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2.8rem;background:transparent;margin:.2rem 0}
+input[type=range]::-webkit-slider-runnable-track{height:.75rem;border-radius:1rem;background:#dbe4ef}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--accent);border:4px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35);margin-top:-.68rem}
+input[type=range]::-moz-range-track{height:.75rem;border-radius:1rem;background:#dbe4ef}
+input[type=range]::-moz-range-thumb{width:1.7rem;height:1.7rem;border-radius:50%;background:var(--accent);border:4px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35)}
+.res{width:100%;border-collapse:collapse;font-size:.92rem}
+.res th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.03em}
+.res td,.res th{padding:.35rem .35rem;border-bottom:1px solid var(--line)}
+.res .num{text-align:right;font-weight:800;white-space:nowrap}
+.res .empty{color:var(--muted);font-style:italic}
+.explain{background:var(--tint);border-left:.4rem solid var(--accent);border-radius:.6rem;padding:.65rem .85rem;font-size:1rem;line-height:1.4}
+.key{font-size:.95rem;line-height:1.4}
+.key b{color:var(--accent)}
+.hint{font-size:.85rem;color:var(--muted);margin:.35rem 0 0}
+.hz{cursor:pointer}
+.hz:hover{fill-opacity:.08}
+.mk{cursor:pointer}
+/* ---------- quiz ---------- */
+.panel[data-m=quiz].on{display:flex;justify-content:center}
+.qcard{width:min(66rem,100%);max-height:100%;overflow:auto;padding:1.1rem 1.6rem;display:flex;flex-direction:column;gap:.8rem;border-top:.35rem solid var(--quiz)}
+.qtop{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.qtag{background:var(--tint);color:var(--quiz);font-weight:800;padding:.3rem .8rem;border-radius:999px;border:2px solid var(--quiz)}
+.qcount{font-weight:800;font-size:1.1rem;margin-right:auto}
+.qscore{font-weight:800;font-size:1.1rem}
+.qdots{display:flex;gap:.35rem}
+.qdots span{flex:1;height:.55rem;border-radius:1rem;background:#e2e8f1}
+.qdots span.cur{background:#f6b8cd}
+.qdots span.ok{background:#22a35a}
+.qdots span.no{background:#e0573b}
+.qbody{display:flex;gap:1.2rem;align-items:flex-start}
+.qpic{flex:0 0 7rem;height:7rem;border-radius:1rem;background:var(--tint);display:flex;align-items:center;justify-content:center}
+.qpic svg{width:5rem;height:5rem}
+.qq{font-size:1.55rem;line-height:1.3;margin:0;font-weight:800}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.qopt{font:inherit;font-size:1.2rem;font-weight:700;text-align:left;display:flex;align-items:center;gap:.8rem;min-height:4rem;padding:.6rem .9rem;
+  border-radius:.9rem;border:3px solid var(--line);background:#f8fafc;color:var(--ink);cursor:pointer}
+.qopt .let{flex:0 0 2.3rem;height:2.3rem;border-radius:50%;background:#e2e8f1;display:flex;align-items:center;justify-content:center;font-weight:800}
+.qopt.ok{border-color:#22a35a;background:#e3f6ea}
+.qopt.ok .let{background:#22a35a;color:#fff}
+.qopt.no{border-color:#e0573b;background:#fdeae5}
+.qopt.no .let{background:#e0573b;color:#fff}
+.qopt:disabled{cursor:default}
+.qfb{border-radius:.8rem;padding:.7rem 1rem;font-size:1.1rem;line-height:1.4;display:none}
+.qfb.ok{display:block;background:#e3f6ea;border-left:.4rem solid #22a35a}
+.qfb.no{display:block;background:#fdeae5;border-left:.4rem solid #e0573b}
+.qnav{display:flex;gap:.6rem;justify-content:flex-end}
+.qnav .btn{flex:0 0 auto;font-size:1.1rem;min-height:3.2rem;padding:.4rem 1.4rem}
+.qend{text-align:center}
+.qbig{font-size:4.5rem;font-weight:900;color:var(--quiz);line-height:1}
+.qrev{text-align:left;font-size:1rem;display:flex;flex-direction:column;gap:.45rem;margin-top:.6rem}
+.qrev div{padding:.5rem .8rem;border-radius:.6rem;background:#f5f7fb;border-left:.35rem solid #22a35a}
+.qrev div.no{border-left-color:#e0573b}
+/* ---------- small screens / portrait ---------- */
+@media (max-width:1000px),(max-aspect-ratio:1/1){
+  body{height:auto;min-height:100%;overflow:auto}
+  main{display:block}
+  .panel.on{display:flex;flex-direction:column}
+  .stage{flex:none;aspect-ratio:var(--ar,1000/560)}
+  .side{overflow:visible}
+  .qopts{grid-template-columns:1fr}
+  .qpic{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 48 48">
+      <rect x="2" y="2" width="44" height="44" rx="12" fill="#7356d1"/>
+      <path d="M8 22 L40 16" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      <path d="M24 20 L18 34 H30 Z" fill="#ffd75e" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+      <rect x="7" y="12" width="9" height="8" rx="2" fill="#e9781c" transform="rotate(-10 11 16)"/>
+    </svg>
+    <div><div class="title">Simple Machines Lab</div><div class="sub">Grade 6 Science - Unit 2</div></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-tab="rollers" style="--c:var(--roll)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="4" width="16" height="8" rx="1.5"/><circle cx="8" cy="16" r="3"/><circle cx="16" cy="16" r="3"/><path d="M2 21h20"/></svg><span>Rollers</span></button>
+    <button class="tab" data-tab="ramps" style="--c:var(--ramp)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M2 20H22V7Z"/><rect x="9" y="9" width="5" height="4" transform="rotate(-31 11.5 11)"/></svg><span>Inclined Planes</span></button>
+    <button class="tab" data-tab="levers" style="--c:var(--lever)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9 22 14"/><path d="M12 12 8.5 20H15.5Z"/><rect x="3" y="4" width="4" height="4"/></svg><span>Levers</span></button>
+    <button class="tab" data-tab="pulleys" style="--c:var(--pulley)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 2h16M12 2v3"/><circle cx="12" cy="9" r="4"/><path d="M8 9v8M16 9v11"/><rect x="5" y="17" width="6" height="5" rx="1"/></svg><span>Pulleys</span></button>
+    <button class="tab" data-tab="quiz" style="--c:var(--quiz)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.2 9.3a2.9 2.9 0 1 1 4 2.7c-.8.4-1.2 1-1.2 1.9v.6"/><circle cx="12" cy="17.6" r=".6" fill="currentColor"/></svg><span>Quiz</span></button>
+  </nav>
+  <button class="fs" id="fsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span id="fsTxt">Full screen</span></button>
+</header>
+
+<main>
+<!-- ======================= ROLLERS ======================= -->
+<section class="panel on" id="p-rollers" data-m="rollers">
+  <div class="stagecol">
+    <div class="card stagehead">
+      <div><h2>Rollers - Activity 1</h2><p>Add marbles to the bag one at a time until the book starts to slide.</p></div>
+      <span class="pill" id="rPill">Not moving</span>
+    </div>
+    <div class="card stage" style="--ar:1000/560">
+      <svg id="rSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="rWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f9ff"/><stop offset="1" stop-color="#e3edf9"/></linearGradient>
+          <pattern id="rRough" width="22" height="12" patternUnits="userSpaceOnUse"><rect width="22" height="12" fill="#b3804c"/><path d="M1 3h8M12 8h8M5 10h4" stroke="#7f5229" stroke-width="2.2" stroke-linecap="round"/></pattern>
+        </defs>
+        <rect width="1000" height="560" fill="url(#rWall)"/>
+        <rect y="540" width="1000" height="20" fill="#d8c6a6"/>
+        <g font-size="22" font-weight="700" fill="#1f2a44">
+          <text x="40" y="44">Pull from the marbles</text>
+          <rect x="40" y="54" width="400" height="26" rx="13" fill="#e1e8f2"/>
+          <rect id="rPullBar" x="40" y="54" width="0" height="26" rx="13" fill="#2a76d2"/>
+          <text id="rPullTxt" x="452" y="75">0.0 N</text>
+          <text x="40" y="118">Friction holding the book back</text>
+          <rect x="40" y="128" width="400" height="26" rx="13" fill="#e1e8f2"/>
+          <rect id="rFricBar" x="40" y="128" width="0" height="26" rx="13" fill="#d94b2b"/>
+          <text id="rFricTxt" x="452" y="149">0.0 N</text>
+        </g>
+        <!-- table -->
+        <rect x="150" y="352" width="24" height="188" fill="#8a5a2e"/>
+        <rect x="696" y="352" width="24" height="188" fill="#8a5a2e"/>
+        <rect x="120" y="350" width="640" height="16" fill="#76491f"/>
+        <rect id="rTop" x="120" y="330" width="640" height="24" rx="4" fill="url(#rRough)" stroke="#6e4420" stroke-width="3"/>
+        <rect id="rShine" x="132" y="334" width="616" height="4" rx="2" fill="#fff" opacity=".65"/>
+        <g id="rOil" fill="#f3d046" opacity=".55">
+          <ellipse cx="300" cy="333" rx="70" ry="3.5"/><ellipse cx="470" cy="333" rx="90" ry="3.5"/><ellipse cx="640" cy="333" rx="60" ry="3.5"/>
+        </g>
+        <text x="300" y="398" font-size="22" font-weight="700" fill="#fff" text-anchor="middle" opacity="0">.</text>
+        <g id="rRolG"></g>
+        <g id="rBook"></g>
+        <polyline id="rStr" fill="none" stroke="#7a5230" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="762" cy="336" r="9" fill="#a7b3c2" stroke="#6b7a90" stroke-width="3"/>
+        <g id="rBag">
+          <path d="M36,0 L54,0 L57,10 C86,16 92,38 90,60 C88,84 70,96 45,96 C20,96 2,84 0,60 C-2,38 4,16 33,10 Z" fill="#d7ecff" fill-opacity=".75" stroke="#6f9cc4" stroke-width="3" stroke-linejoin="round"/>
+          <g id="rMarbles"></g>
+          <ellipse cx="45" cy="5" rx="10" ry="5" fill="#a9cbe6" stroke="#6f9cc4" stroke-width="2"/>
+        </g>
+        <text x="850" y="420" font-size="22" font-weight="700" fill="#5b6b88" text-anchor="middle">bag of</text>
+        <text x="850" y="446" font-size="22" font-weight="700" fill="#5b6b88" text-anchor="middle">marbles</text>
+      </svg>
+    </div>
+    <div class="readouts">
+      <div class="card stat"><div class="lab">Marbles in bag</div><div class="val" id="rM">0</div></div>
+      <div class="card stat"><div class="lab">Pulling force</div><div class="val" id="rP">0.0 N</div></div>
+      <div class="card stat"><div class="lab">Friction to beat</div><div class="val" id="rF">3.0 N</div></div>
+      <div class="card stat"><div class="lab">Weight of books</div><div class="val" id="rW">4 N</div></div>
+    </div>
+  </div>
+  <aside class="side">
+    <div class="card sec"><h3>1. Under the book</h3>
+      <div class="btns" id="rRol"><button class="btn on" data-v="none">No rollers</button><button class="btn" data-v="round">Round pencils</button><button class="btn" data-v="square">Square blocks</button></div></div>
+    <div class="card sec"><h3>2. Table surface</h3>
+      <div class="btns" id="rSurf"><button class="btn on" data-v="rough">Rough</button><button class="btn" data-v="smooth">Smooth</button><button class="btn" data-v="oiled">Oiled</button></div></div>
+    <div class="card sec"><h3>3. Number of books</h3>
+      <div class="btns" id="rBooks"><button class="btn on" data-v="1">1 book</button><button class="btn" data-v="2">2 books</button><button class="btn" data-v="3">3 books</button></div></div>
+    <div class="card sec"><h3>4. Add marbles</h3>
+      <div class="btns">
+        <button class="btn primary" id="rAdd1">+1 marble</button>
+        <button class="btn primary" id="rAdd5">+5 marbles</button>
+        <button class="btn" id="rRem">-1 marble</button>
+        <button class="btn" id="rAuto">Auto drop</button>
+      </div>
+      <div class="btns" style="margin-top:.45rem"><button class="btn reset" id="rReset"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>Reset experiment</button></div>
+    </div>
+    <div class="card sec"><div class="explain" id="rExp"></div></div>
+    <div class="card sec"><h3>Results <span class="v" style="font-size:.85rem">(fair test)</span></h3>
+      <table class="res"><thead><tr><th>Setup</th><th class="num">Marbles</th></tr></thead><tbody id="rRes"></tbody></table>
+      <button class="btn small" id="rClr">Clear results</button></div>
+    <div class="card sec key"><h3>Key idea</h3>Rollers <b>reduce friction</b>. Less friction means <b>less force</b> is needed to move an object. Round shapes roll; corners catch and scrape.</div>
+  </aside>
+</section>
+
+<!-- ======================= INCLINED PLANES ======================= -->
+<section class="panel" id="p-ramps" data-m="ramps">
+  <div class="stagecol">
+    <div class="card stagehead">
+      <div><h2>Inclined Planes - Activity 2</h2><p>Pull the box up to a 1 m high platform. Compare steep and gentle ramps.</p></div>
+      <span class="pill" id="ipPill">Steep ramp</span>
+    </div>
+    <div class="card stage" style="--ar:1000/560">
+      <svg id="ipSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+        <defs><linearGradient id="ipSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eaf5ff"/><stop offset="1" stop-color="#f7fbff"/></linearGradient></defs>
+        <rect width="1000" height="560" fill="url(#ipSky)"/>
+        <rect y="490" width="1000" height="70" fill="#cfe6b8"/>
+        <rect y="490" width="1000" height="5" fill="#9cc77f"/>
+        <g id="ipMeterG"></g>
+        <text x="20" y="36" font-size="22" font-weight="800" fill="#1f2a44">Newton meter</text>
+        <text id="ipMeterVal" x="140" y="190" font-size="48" font-weight="900" fill="#239a60">0.0 N</text>
+        <text x="142" y="222" font-size="20" font-weight="700" fill="#5b6b88">force needed</text>
+        <!-- platform -->
+        <rect x="700" y="330" width="180" height="160" rx="6" fill="#8fb0d9" stroke="#4f74a3" stroke-width="4"/>
+        <path d="M700 383h180M700 436h180" stroke="#4f74a3" stroke-width="3" opacity=".5"/>
+        <text x="790" y="410" font-size="24" font-weight="800" fill="#1f3a63" text-anchor="middle">Height</text>
+        <text x="790" y="440" font-size="24" font-weight="800" fill="#1f3a63" text-anchor="middle">1 m</text>
+        <!-- lift lane -->
+        <g id="ipLane">
+          <rect x="900" y="330" width="80" height="160" rx="6" fill="none" stroke="#9fb1c7" stroke-width="3" stroke-dasharray="8 8"/>
+          <text x="940" y="320" font-size="20" font-weight="700" fill="#5b6b88" text-anchor="middle">lift</text>
+        </g>
+        <polygon id="ipRamp" fill="#ecc993" stroke="#a87b45" stroke-width="4" stroke-linejoin="round"/>
+        <line id="ipSurf" stroke="#9b6a35" stroke-width="8" stroke-linecap="round"/>
+        <line id="ipRough" stroke="#5e3d17" stroke-width="5" stroke-dasharray="4 9"/>
+        <path id="ipArc" fill="none" stroke="#239a60" stroke-width="4"/>
+        <text id="ipAng" font-size="26" font-weight="800" fill="#1b6e44"></text>
+        <g id="ipBox"></g>
+        <g id="ipMet"></g>
+        <g id="ipLab" display="none"><rect rx="10" fill="#fff" stroke="#239a60" stroke-width="3"/><text font-size="26" font-weight="800" fill="#1b6e44" text-anchor="middle"></text></g>
+      </svg>
+    </div>
+    <div class="readouts">
+      <div class="card stat"><div class="lab">Angle</div><div class="val" id="ipA">30&deg;</div></div>
+      <div class="card stat"><div class="lab">Distance moved</div><div class="val" id="ipD">2.0 m</div></div>
+      <div class="card stat"><div class="lab">Height reached</div><div class="val">1 m</div></div>
+      <div class="card stat"><div class="lab">Force needed</div><div class="val" id="ipF">?</div></div>
+    </div>
+  </div>
+  <aside class="side">
+    <div class="card sec"><h3>1. How will you move the box?</h3>
+      <div class="btns" id="ipMode"><button class="btn on" data-v="ramp">Pull up the ramp</button><button class="btn" data-v="lift">Lift straight up</button></div></div>
+    <div class="card sec"><h3>2. Steepness <span class="v" id="ipAngTxt">30&deg;</span></h3>
+      <input type="range" id="ipAngle" min="15" max="70" step="1" value="30">
+      <div class="btns" id="ipPre"><button class="btn" data-v="17">Gentle 17&deg;</button><button class="btn" data-v="30">Steep 30&deg;</button><button class="btn" data-v="55">Very steep 55&deg;</button></div></div>
+    <div class="card sec"><h3>3. Load and surface</h3>
+      <div class="btns" id="ipLoad"><button class="btn" data-v="5">5 N</button><button class="btn on" data-v="10">10 N</button><button class="btn" data-v="20">20 N</button></div>
+      <div class="btns" id="ipSurfB" style="margin-top:.45rem"><button class="btn on" data-v="smooth">Smooth ramp</button><button class="btn" data-v="rough">Rough ramp</button></div></div>
+    <div class="card sec"><h3>4. Test it</h3>
+      <div class="btns"><button class="btn primary" id="ipGo">Pull the box</button><button class="btn" id="ipRec">Record result</button></div>
+      <div class="btns" style="margin-top:.45rem"><button class="btn reset" id="ipReset"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>Reset</button></div></div>
+    <div class="card sec"><div class="explain" id="ipExp"></div></div>
+    <div class="card sec"><h3>Results</h3>
+      <table class="res"><thead><tr><th>Method</th><th class="num">Distance</th><th class="num">Force</th></tr></thead><tbody id="ipRes"></tbody></table>
+      <button class="btn small" id="ipClr">Clear results</button></div>
+    <div class="card sec key"><h3>Key idea</h3>A <b>gentle</b> ramp needs <b>less force</b> but a <b>longer distance</b>. A <b>steep</b> ramp is shorter but needs <b>more force</b>. An inclined plane has no moving parts.</div>
+  </aside>
+</section>
+
+<!-- ======================= LEVERS ======================= -->
+<section class="panel" id="p-levers" data-m="levers">
+  <div class="stagecol">
+    <div class="card stagehead">
+      <div><h2 id="lvTitle">Levers - Number Balance</h2><p id="lvSub">Tap a number on the EFFORT side to hang a weight. Can you balance the load?</p></div>
+      <span class="pill" id="lvPill">Not balanced</span>
+    </div>
+    <div class="card stage" style="--ar:1000/560">
+      <!-- number balance -->
+      <svg id="lbSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+        <rect width="1000" height="560" fill="#f6f3ff"/>
+        <rect y="530" width="1000" height="30" fill="#e2dcf3"/>
+        <text x="240" y="108" font-size="26" font-weight="800" fill="#2a76d2" text-anchor="middle">EFFORT side</text>
+        <text x="760" y="108" font-size="26" font-weight="800" fill="#e9781c" text-anchor="middle">LOAD side</text>
+        <text id="lbStatus" x="500" y="56" font-size="34" font-weight="900" text-anchor="middle" fill="#7356d1"></text>
+        <path d="M380 530 L410 498 H590 L620 530 Z" fill="#8f7fc2" stroke="#5e4c9a" stroke-width="4" stroke-linejoin="round"/>
+        <rect x="488" y="200" width="24" height="300" fill="#a99ad6" stroke="#5e4c9a" stroke-width="4"/>
+        <g id="lbHz"></g>
+        <g id="lbBeam"></g>
+        <circle cx="500" cy="200" r="14" fill="#5e4c9a" stroke="#fff" stroke-width="4"/>
+        <g id="lbHang" pointer-events="none"></g>
+      </svg>
+      <!-- move the fulcrum -->
+      <svg id="lfSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" style="display:none;touch-action:none">
+        <defs><linearGradient id="lfSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef6ff"/><stop offset="1" stop-color="#fbfdff"/></linearGradient></defs>
+        <rect width="1000" height="560" fill="url(#lfSky)"/>
+        <rect y="460" width="1000" height="100" fill="#e9dcc3"/>
+        <rect y="460" width="1000" height="5" fill="#c9b48f"/>
+        <g id="lfDims"></g>
+        <g id="lfPlank"></g>
+        <g id="lfFul" style="cursor:grab"></g>
+        <g id="lfKid"></g>
+        <g id="lfArms"></g>
+        <g id="lfLabels"></g>
+      </svg>
+      <!-- everyday levers -->
+      <svg id="leSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" style="display:none">
+        <rect width="1000" height="560" fill="#fbfaff"/>
+        <g id="leArt"></g>
+        <g id="leLines"></g>
+        <g id="leMarks"></g>
+      </svg>
+    </div>
+    <div class="readouts" id="lbRead">
+      <div class="card stat"><div class="lab">Effort side (weights x position)</div><div class="val" id="lbE">0</div></div>
+      <div class="card stat"><div class="lab">Load side (weights x position)</div><div class="val" id="lbL">4 x 5 = 20</div></div>
+      <div class="card stat"><div class="lab">Effort weights</div><div class="val" id="lbN">0</div></div>
+    </div>
+    <div class="readouts" id="lfRead" style="display:none">
+      <div class="card stat"><div class="lab">Load (rock)</div><div class="val" id="lfLo">300 N</div></div>
+      <div class="card stat"><div class="lab">Effort needed</div><div class="val" id="lfEf">300 N</div></div>
+      <div class="card stat"><div class="lab">Rock rises</div><div class="val" id="lfUp">0 cm</div></div>
+      <div class="card stat"><div class="lab">Hands push down</div><div class="val" id="lfDn">0 cm</div></div>
+    </div>
+    <div class="readouts" id="leRead" style="display:none">
+      <div class="card stat"><div class="lab">Tool</div><div class="val" id="leName">Scissors</div></div>
+      <div class="card stat"><div class="lab">Parts found</div><div class="val" id="leFound">0 / 3</div></div>
+      <div class="card stat"><div class="lab">Force-saving?</div><div class="val" id="leSave">?</div></div>
+    </div>
+  </div>
+  <aside class="side">
+    <div class="card sec"><h3>Choose an activity</h3>
+      <div class="btns" id="lvMode"><button class="btn on" data-v="bal">Number balance</button><button class="btn" data-v="ful">Move the fulcrum</button><button class="btn" data-v="day">Everyday levers</button></div></div>
+    <!-- balance controls -->
+    <div id="lbSide" style="display:contents">
+      <div class="card sec"><h3>Effort weights (blue)</h3>
+        <div class="btns" id="lbTap"><button class="btn on" data-v="add">Tap to add</button><button class="btn" data-v="remove">Tap to remove</button></div>
+        <p class="hint">Tap a position on the left side of the balance.</p></div>
+      <div class="card sec"><h3>Load (orange)</h3>
+        <div class="stepper"><span class="lbl">Number of weights</span><button class="btn" id="lbNm">-</button><span class="num" id="lbNv">4</span><button class="btn" id="lbNp">+</button></div>
+        <div class="stepper"><span class="lbl">Position</span><button class="btn" id="lbPm">-</button><span class="num" id="lbPv">5</span><button class="btn" id="lbPp">+</button></div>
+        <div class="btns" style="margin-top:.4rem"><button class="btn reset" id="lbReset"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>Reset balance</button></div></div>
+      <div class="card sec"><div class="explain" id="lbExp"></div></div>
+      <div class="card sec"><h3>Results <span class="v" id="lbResHead" style="font-size:.85rem">4 weights at 5</span></h3>
+        <table class="res"><thead><tr><th>Effort position</th><th class="num">Weights to balance</th></tr></thead><tbody id="lbRes"></tbody></table>
+        <p class="hint">Use one effort position at a time. A result is saved when the balance is level.</p></div>
+    </div>
+    <!-- fulcrum controls -->
+    <div id="lfSide" style="display:none">
+      <div class="card sec"><h3>Fulcrum position <span class="v" id="lfFv">middle</span></h3>
+        <input type="range" id="lfF" min="1.5" max="8.5" step="0.5" value="5">
+        <p class="hint">Slide here, or drag the grey stone in the picture.</p></div>
+      <div class="card sec"><h3>Weight of rock (load)</h3>
+        <div class="btns" id="lfLoad"><button class="btn" data-v="100">100 N</button><button class="btn on" data-v="300">300 N</button><button class="btn" data-v="600">600 N</button></div></div>
+      <div class="card sec"><h3>Test it</h3>
+        <div class="btns"><button class="btn primary" id="lfPush">Push down</button><button class="btn" id="lfLab">Hide labels</button></div>
+        <div class="btns" style="margin-top:.45rem"><button class="btn reset" id="lfReset"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>Reset</button></div></div>
+      <div class="card sec"><div class="explain" id="lfExp"></div></div>
+    </div>
+    <!-- everyday controls -->
+    <div id="leSide" style="display:none">
+      <div class="card sec"><h3>Pick a tool</h3>
+        <div class="btns" id="leItem"><button class="btn on" data-v="0">Scissors</button><button class="btn" data-v="1">Bread tongs</button><button class="btn" data-v="2">Wheelbarrow</button><button class="btn" data-v="3">Bottle opener</button></div>
+        <p class="hint">Tap each question mark to find the effort, load and fulcrum.</p>
+        <div class="btns" style="margin-top:.4rem"><button class="btn" id="leAll">Reveal all</button><button class="btn reset" id="leHide"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>Reset</button></div></div>
+      <div class="card sec"><h3>Is this lever force-saving?</h3>
+        <div class="btns"><button class="btn" id="leYes">Yes, force-saving</button><button class="btn" id="leNo">No, not force-saving</button></div></div>
+      <div class="card sec"><div class="explain" id="leExp"></div></div>
+    </div>
+    <div class="card sec key"><h3>Key idea</h3>A lever has an <b>effort</b>, a <b>load</b> and a <b>fulcrum</b>. It is <b>force-saving</b> when the effort is further from the fulcrum than the load is.</div>
+  </aside>
+</section>
+
+<!-- ======================= PULLEYS ======================= -->
+<section class="panel" id="p-pulleys" data-m="pulleys">
+  <div class="stagecol">
+    <div class="card stagehead">
+      <div><h2>Pulleys - Activity 5</h2><p>Lift the load. How does the number of pulleys change the effort?</p></div>
+      <span class="pill" id="puPill">1 pulley</span>
+    </div>
+    <div class="card stage" style="--ar:1000/640">
+      <svg id="puSvg" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet">
+        <rect width="1000" height="640" fill="#f2f7fd"/>
+        <rect y="600" width="1000" height="40" fill="#d9e3ef"/>
+        <rect x="150" y="40" width="700" height="26" rx="5" fill="#8a5a2e" stroke="#5f3c1c" stroke-width="3"/>
+        <path d="M150 40 l20 -20 M210 40 l20 -20 M270 40 l20 -20 M330 40 l20 -20 M390 40 l20 -20 M450 40 l20 -20 M510 40 l20 -20 M570 40 l20 -20 M630 40 l20 -20 M690 40 l20 -20 M750 40 l20 -20 M810 40 l20 -20" stroke="#9aa7b8" stroke-width="3"/>
+        <g id="puMeterG"></g>
+        <text x="20" y="98" font-size="22" font-weight="800" fill="#1f2a44">Newton meter</text>
+        <text id="puMeterVal" x="78" y="418" font-size="44" font-weight="900" fill="#2a76d2" text-anchor="middle">0 N</text>
+        <text x="78" y="446" font-size="20" font-weight="700" fill="#5b6b88" text-anchor="middle">effort</text>
+        <g id="puG"></g>
+      </svg>
+    </div>
+    <div class="readouts">
+      <div class="card stat"><div class="lab">Load</div><div class="val" id="puLo">12 N</div></div>
+      <div class="card stat"><div class="lab">Effort needed</div><div class="val" id="puEf">?</div></div>
+      <div class="card stat"><div class="lab">Rope pulled</div><div class="val" id="puRp">0 cm</div></div>
+      <div class="card stat"><div class="lab">Load lifted</div><div class="val" id="puLf">0 cm</div></div>
+    </div>
+  </div>
+  <aside class="side">
+    <div class="card sec"><h3>1. Number of pulleys</h3>
+      <div class="btns" id="puN"><button class="btn on" data-v="1">1</button><button class="btn" data-v="2">2</button><button class="btn" data-v="3">3</button><button class="btn" data-v="4">4</button><button class="btn" data-v="6">6</button></div></div>
+    <div class="card sec"><h3>2. Load</h3>
+      <div class="btns" id="puLoad"><button class="btn" data-v="2">2 N</button><button class="btn on" data-v="12">12 N</button><button class="btn" data-v="24">24 N</button><button class="btn" data-v="60">60 N</button></div></div>
+    <div class="card sec"><h3>3. Lift the load <span class="v" id="puHv">0 cm</span></h3>
+      <input type="range" id="puH" min="0" max="50" step="1" value="0">
+      <div class="btns"><button class="btn primary" id="puUp">Lift up</button><button class="btn" id="puDown">Let down</button><button class="btn" id="puCnt">Hide rope count</button></div>
+      <div class="btns" style="margin-top:.45rem"><button class="btn reset" id="puReset"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>Reset</button></div></div>
+    <div class="card sec"><div class="explain" id="puExp"></div></div>
+    <div class="card sec"><h3>Results <span class="v" id="puResHead" style="font-size:.85rem">load 12 N</span></h3>
+      <table class="res"><thead><tr><th>Pulleys</th><th class="num">Rope sections</th><th class="num">Effort</th></tr></thead><tbody id="puRes"></tbody></table></div>
+    <div class="card sec key"><h3>Key idea</h3>One pulley <b>changes the direction</b> of the force but does not save force. More rope sections holding the load means <b>less effort</b>, but you must pull <b>more rope</b>.</div>
+  </aside>
+</section>
+
+<!-- ======================= QUIZ ======================= -->
+<section class="panel" id="p-quiz" data-m="quiz">
+  <div class="card qcard" id="qz"></div>
+</section>
+</main>
+
+<script>
+/* ================= HELPERS ================= */
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+function S(tag,a,p){const e=document.createElementNS(NS,tag);if(a)for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+function T(txt,a,p){const e=S('text',a,p);e.textContent=txt;return e;}
+function clear(g){while(g.firstChild)g.removeChild(g.firstChild);}
+function tween(ms,step,done){let s=null,id;const f=ts=>{if(s===null)s=ts;const t=Math.min(1,(ts-s)/ms);step(t);if(t<1)id=requestAnimationFrame(f);else{id=null;if(done)done();}};id=requestAnimationFrame(f);return()=>{if(id)cancelAnimationFrame(id);id=null;};}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const f1=n=>(Math.round(n*10)/10).toFixed(1);
+function nice(n){return Math.abs(n-Math.round(n))<1e-9?String(Math.round(n)):f1(n);}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function seg(id,cb){const box=$(id);box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!box.contains(b))return;box.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v);});}
+function setSeg(id,v){$(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v==String(v)));}
+function svgPoint(svg,evt){const pt=svg.createSVGPoint();pt.x=evt.clientX;pt.y=evt.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+
+/* Newton meter (spring balance) drawn inside an SVG */
+function Meter(parent,x,y,w,h){
+  const svg=S('svg',{x,y,width:w,height:h,viewBox:'0 0 190 450'},parent);
+  const Y0=88,H=272;let max=20;
+  S('circle',{cx:120,cy:24,r:15,fill:'none',stroke:'#8a6d1f','stroke-width':6},svg);
+  S('rect',{x:114,y:38,width:12,height:20,fill:'#8a6d1f'},svg);
+  S('rect',{x:66,y:56,width:108,height:344,rx:20,fill:'#ffd75e',stroke:'#c9a227','stroke-width':4},svg);
+  S('rect',{x:86,y:72,width:68,height:312,rx:10,fill:'#fffdf3',stroke:'#d9c27a','stroke-width':3},svg);
+  const ticks=S('g',{},svg);
+  const spring=S('path',{fill:'none',stroke:'#8a99ad','stroke-width':4,'stroke-linejoin':'round'},svg);
+  const ptr=S('g',{},svg);
+  S('rect',{x:86,y:-4,width:68,height:8,rx:3,fill:'#e03b3b'},ptr);
+  S('polygon',{points:'152,0 170,-12 170,12',fill:'#e03b3b'},ptr);
+  S('path',{d:'M120 400 V420 a12 12 0 1 1 -12 12',fill:'none',stroke:'#8a6d1f','stroke-width':6,'stroke-linecap':'round'},svg);
+  function build(){clear(ticks);for(let i=0;i<=20;i++){const yy=Y0+i*H/20,maj=i%5===0;
+    S('line',{x1:86,y1:yy,x2:maj?114:100,y2:yy,stroke:'#5b6b88','stroke-width':maj?3:2},ticks);
+    if(maj)T(nice(max*i/20),{x:58,y:yy+8,'text-anchor':'end','font-size':24,'font-weight':800,fill:'#1f2a44'},ticks);}}
+  function set(v){const yy=Y0+clamp(v/max,0,1.04)*H;ptr.setAttribute('transform',`translate(0,${yy})`);
+    let d=`M120 72`;const n=10,top=74,len=yy-top-4;for(let i=1;i<=n;i++){d+=` L${i%2?108:132} ${top+len*i/n}`;}d+=` L120 ${yy-2}`;spring.setAttribute('d',d);}
+  build();set(0);
+  return{setMax(m){max=m;build();},set};
+}
+
+/* ================= TABS + FULLSCREEN ================= */
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(!b)return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.tab));});
+function isFS(){return document.fullscreenElement||document.webkitFullscreenElement;}
+$('fsBtn').addEventListener('click',()=>{try{const d=document,e=d.documentElement;
+  if(!isFS()){const r=(e.requestFullscreen||e.webkitRequestFullscreen);if(r){const p=r.call(e);if(p&&p.catch)p.catch(()=>{});}}
+  else{const x=(d.exitFullscreen||d.webkitExitFullscreen);if(x)x.call(d);}}catch(err){}});
+function fsLabel(){$('fsTxt').textContent=isFS()?'Exit full screen':'Full screen';}
+document.addEventListener('fullscreenchange',fsLabel);document.addEventListener('webkitfullscreenchange',fsLabel);
+
+/* ================= ROLLERS ================= */
+(function(){
+  const MU={none:{rough:.75,smooth:.5,oiled:.3},round:{rough:.08,smooth:.06,oiled:.05},square:{rough:.6,smooth:.5,oiled:.45}};
+  const NAME={none:'No rollers',round:'Round pencils',square:'Square blocks'};
+  const st={rol:'none',surf:'rough',books:1,m:0,moved:false,d:0,res:[]};
+  let stopAnim=null,autoT=null;
+  const book=$('rBook'),rolG=$('rRolG'),str=$('rStr'),bag=$('rBag'),mg=$('rMarbles');
+  const COLS=['#4f8ef7','#f25f5c','#2fbf71','#ffb400','#9b5de5'];
+  const MP=[];{const rows=[6,8,9,9,9,9,8,7];let y=84;rows.forEach(c=>{for(let j=0;j<c;j++)MP.push([45+(j-(c-1)/2)*9.4,y]);y-=9.2;});}
+  const fT=()=>Math.round(MU[st.rol][st.surf]*4*st.books*10); // tenths of a newton
+  const OFF=[16,53,90,127,164];
+  function drawBooks(){clear(book);const cs=[['#3a7bd5','#24569e'],['#e0573b','#a33a22'],['#2fa36b','#1e7049']];
+    for(let i=0;i<st.books;i++){const y=-(i+1)*34;
+      S('rect',{x:0,y,width:180,height:34,rx:5,fill:cs[i][0],stroke:cs[i][1],'stroke-width':3},book);
+      S('rect',{x:10,y:y+7,width:160,height:20,rx:3,fill:'#fff8e7'},book);
+      S('line',{x1:12,y1:y+14,x2:168,y2:y+14,stroke:'#e6d9bb','stroke-width':2},book);
+      S('line',{x1:12,y1:y+20,x2:168,y2:y+20,stroke:'#e6d9bb','stroke-width':2},book);}
+    // string wrapped round bottom book
+    S('line',{x1:150,y1:-34,x2:150,y2:0,stroke:'#7a5230','stroke-width':3.5},book);}
+  function drawRollers(){clear(rolG);if(st.rol==='none')return;
+    OFF.forEach(o=>{let cx,rot=0;if(st.rol==='round'){cx=440+o+st.d/2;rot=(st.d/2)/12*180/Math.PI;}else cx=440+o+st.d;
+      const g=S('g',{transform:`translate(${cx},318) rotate(${rot})`},rolG);
+      if(st.rol==='round'){S('circle',{r:12,fill:'#f7c531',stroke:'#b88a12','stroke-width':3},g);S('circle',{r:6,fill:'#f2d7a8'},g);S('circle',{r:2.6,fill:'#333'},g);S('rect',{x:-2,y:-12,width:4,height:5,fill:'#b88a12'},g);}
+      else{S('rect',{x:-12,y:-12,width:24,height:24,rx:3,fill:'#c08a55',stroke:'#7d5228','stroke-width':3},g);S('line',{x1:-7,y1:-4,x2:7,y2:-4,stroke:'#7d5228','stroke-width':2},g);S('line',{x1:-7,y1:4,x2:7,y2:4,stroke:'#7d5228','stroke-width':2},g);}});}
+  function drawMarbles(){clear(mg);for(let i=0;i<st.m&&i<MP.length;i++){const[x,y]=MP[i];
+    S('circle',{cx:x,cy:y,r:4.5,fill:COLS[i%5],stroke:'rgba(0,0,0,.25)','stroke-width':1},mg);S('circle',{cx:x-1.5,cy:y-1.5,r:1.4,fill:'#fff',opacity:.8},mg);}}
+  function bar(id,v){const w=clamp(v*40,0,400);const r=$(id);r.setAttribute('width',w);r.setAttribute('rx',Math.min(13,w/2));}
+  function render(){
+    const base=st.rol==='none'?330:306;
+    book.setAttribute('transform',`translate(${440+st.d},${base})`);drawRollers();
+    str.setAttribute('points',`${620+st.d},${base-17} 760,327 771,336 771,${352+st.d}`);
+    bag.setAttribute('transform',`translate(726,${352+st.d})`);
+    $('rTop').setAttribute('fill',st.surf==='rough'?'url(#rRough)':'#ddb17c');
+    $('rShine').style.display=st.surf==='rough'?'none':'';$('rOil').style.display=st.surf==='oiled'?'':'none';
+    const pull=st.m*0.2,fr=fT()/10;
+    bar('rPullBar',pull);bar('rFricBar',fr);$('rPullTxt').textContent=f1(pull)+' N';$('rFricTxt').textContent=f1(fr)+' N';
+    $('rM').textContent=st.m;$('rP').textContent=f1(pull)+' N';$('rF').textContent=f1(fr)+' N';$('rW').textContent=(4*st.books)+' N';
+    const pill=$('rPill');pill.textContent=st.moved?'Moving!':'Not moving';pill.classList.toggle('good',st.moved);
+    ['rAdd1','rAdd5','rRem','rAuto'].forEach(id=>$(id).disabled=st.moved);
+    let t;
+    if(st.moved){
+      if(st.rol==='none')t=`It took <b>${st.m} marbles</b>. With no rollers the book drags (rubs) along the table, so there is a lot of friction to beat.`;
+      else if(st.rol==='round')t=`Only <b>${st.m} marbles</b>! The round pencils roll under the book, so very little effort is wasted on friction.`;
+      else t=`It took <b>${st.m} marbles</b>. Square blocks have corners, so they cannot roll. They scrape along the table and friction stays high.`;
+      if(st.surf!=='rough')t+=` The ${st.surf} surface also lowers friction.`;
+      t+=' Press Reset or change the setup to test again.';
+    }else if(st.m===0)t='Predict first: how many marbles will it take to move the book? Then add marbles one at a time.';
+    else t=`The marbles pull with <b>${f1(pull)} N</b>, but friction holds the book back with <b>${f1(fr)} N</b>. Keep adding marbles.`;
+    $('rExp').innerHTML=t;
+  }
+  function renderRes(){const tb=$('rRes');tb.innerHTML=st.res.length?'':'<tr><td class="empty" colspan="2">No results yet</td></tr>';
+    st.res.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r.s}</td><td class="num">${r.m}</td>`;tb.appendChild(tr);});}
+  function stopAuto(){if(autoT){clearInterval(autoT);autoT=null;}$('rAuto').textContent='Auto drop';$('rAuto').classList.remove('on');}
+  function slide(){st.moved=true;stopAuto();
+    st.res.unshift({s:`${NAME[st.rol]}, ${st.surf} table, ${st.books} book${st.books>1?'s':''}`,m:st.m});if(st.res.length>7)st.res.pop();renderRes();
+    stopAnim=tween(1300,t=>{st.d=90*t*t;render();});render();}
+  function add(k){if(st.moved)return;st.m=clamp(st.m+k,0,60);drawMarbles();render();if(2*st.m>fT())slide();else if(st.m>=60)stopAuto();}
+  function reset(){if(stopAnim)stopAnim();stopAuto();st.m=0;st.d=0;st.moved=false;drawBooks();drawMarbles();render();}
+  $('rAdd1').onclick=()=>add(1);$('rAdd5').onclick=()=>add(5);$('rRem').onclick=()=>add(-1);
+  $('rAuto').onclick=()=>{if(autoT){stopAuto();return;}if(st.moved)return;$('rAuto').textContent='Stop';$('rAuto').classList.add('on');autoT=setInterval(()=>add(1),300);};
+  $('rReset').onclick=reset;$('rClr').onclick=()=>{st.res=[];renderRes();};
+  seg('rRol',v=>{st.rol=v;reset();});seg('rSurf',v=>{st.surf=v;reset();});seg('rBooks',v=>{st.books=+v;reset();});
+  reset();renderRes();
+})();
+
+/* ================= INCLINED PLANES ================= */
+(function(){
+  const H=160,GY=490,PX=700;
+  const st={angle:30,load:10,surf:'smooth',mode:'ramp',p:0,pulling:false,measured:false,res:[]};
+  let stop=null;
+  const meter=Meter($('ipMeterG'),20,48,110,262);meter.setMax(20);
+  const box=$('ipBox'),met=$('ipMet'),lab=$('ipLab');
+  // crate
+  S('rect',{x:-34,y:-56,width:68,height:56,rx:6,fill:'#e7ad5c',stroke:'#9b6a2c','stroke-width':4},box);
+  S('line',{x1:-30,y1:-40,x2:30,y2:-40,stroke:'#9b6a2c','stroke-width':3},box);
+  const boxTxt=T('10 N',{x:0,y:-12,'text-anchor':'middle','font-size':22,'font-weight':900,fill:'#5a3a12'},box);
+  // newton meter along the pulling direction
+  S('line',{x1:0,y1:0,x2:30,y2:0,stroke:'#7a5230','stroke-width':4},met);
+  S('rect',{x:30,y:-13,width:78,height:26,rx:9,fill:'#ffd75e',stroke:'#c9a227','stroke-width':3},met);
+  for(let i=0;i<5;i++)S('line',{x1:40+i*14,y1:-7,x2:40+i*14,y2:7,stroke:'#8a6d1f','stroke-width':2},met);
+  const mptr=S('rect',{x:38,y:-11,width:5,height:22,fill:'#e03b3b'},met);
+  S('circle',{cx:114,cy:0,r:6,fill:'none',stroke:'#8a6d1f','stroke-width':3},met);
+  S('circle',{cx:130,cy:0,r:14,fill:'#f5c9a0',stroke:'#c98f62','stroke-width':3},met);
+  S('path',{d:'M124 -6 h10 M124 0 h10 M124 6 h10',stroke:'#c98f62','stroke-width':2},met);
+  function force(){if(st.mode==='lift')return st.load;const th=st.angle*Math.PI/180;let f=st.load*Math.sin(th);if(st.surf==='rough')f+=0.25*st.load*Math.cos(th);return f;}
+  const word=a=>a<=22?'gentle':a<=40?'steep':'very steep';
+  function render(){
+    const th=st.angle*Math.PI/180,c=Math.cos(th),s=Math.sin(th);
+    const Lpx=H/s,x0=PX-H/Math.tan(th);
+    $('ipRamp').setAttribute('points',`${x0},${GY} ${PX},${GY-H} ${PX},${GY}`);
+    ['ipSurf','ipRough'].forEach(id=>{const l=$(id);l.setAttribute('x1',x0);l.setAttribute('y1',GY);l.setAttribute('x2',PX);l.setAttribute('y2',GY-H);});
+    $('ipRough').style.display=st.surf==='rough'?'':'none';
+    $('ipArc').setAttribute('d',`M${x0+70},${GY} A70 70 0 0 0 ${x0+70*c},${GY-70*s}`);
+    const at=$('ipAng');at.setAttribute('x',x0+12);at.setAttribute('y',GY+38);at.textContent=st.angle+'\u00B0';
+    const rampOp=st.mode==='lift'?.35:1;['ipRamp','ipSurf','ipRough','ipArc','ipAng'].forEach(id=>$(id).setAttribute('opacity',rampOp));
+    boxTxt.textContent=st.load+' N';
+    const F=force(),reading=st.p>0||st.pulling?F:0;
+    let lx,ly;
+    if(st.mode==='ramp'){const s0=40,s1=Lpx-36,sp=s0+(s1-s0)*st.p;
+      box.setAttribute('transform',`translate(${x0+sp*c},${GY-sp*s}) rotate(${-st.angle})`);
+      const s2=sp+34;met.setAttribute('transform',`translate(${x0+s2*c-28*s},${GY-s2*s-28*c}) rotate(${-st.angle})`);
+      lx=x0+(s2+70)*c-80*s;ly=GY-(s2+70)*s-80*c;
+    }else{const by=GY-H*st.p;box.setAttribute('transform',`translate(940,${by})`);met.setAttribute('transform',`translate(940,${by-56}) rotate(-90)`);lx=835;ly=by-120;}
+    mptr.setAttribute('x',38+clamp(reading/20,0,1)*58);
+    meter.set(reading);$('ipMeterVal').textContent=f1(reading)+' N';
+    if(reading>0){lab.setAttribute('display','');const tx=lab.querySelector('text'),rc=lab.querySelector('rect');const str=f1(F)+' N';tx.textContent=str;
+      const w=str.length*16+26;rc.setAttribute('x',lx-w/2);rc.setAttribute('y',ly-24);rc.setAttribute('width',w);rc.setAttribute('height',40);tx.setAttribute('x',lx);tx.setAttribute('y',ly+5);}
+    else lab.setAttribute('display','none');
+    const dist=st.mode==='lift'?1:1/s;
+    $('ipA').textContent=st.mode==='lift'?'90\u00B0':st.angle+'\u00B0';$('ipD').textContent=f1(dist)+' m';
+    $('ipF').textContent=st.measured||st.pulling?f1(F)+' N':'?';$('ipAngTxt').textContent=st.angle+'\u00B0 ('+word(st.angle)+')';
+    $('ipPill').textContent=st.mode==='lift'?'Lifting straight up':word(st.angle).replace(/^./,m=>m.toUpperCase())+' ramp';
+    let t;
+    if(!st.measured&&!st.pulling)t=st.mode==='lift'?'Predict: how much force will the Newton meter show when you lift the box straight up? Then press <b>Pull the box</b>.':`Predict: will this ${word(st.angle)} ramp need more or less than ${st.load} N? Then press <b>Pull the box</b>.`;
+    else if(st.mode==='lift')t=`Lifting straight up, you hold the <b>whole weight: ${f1(F)} N</b>. The distance is short (1 m), but this needs the most force.`;
+    else{const pct=Math.round(F/st.load*100);t=`On this ${word(st.angle)} ramp you pull <b>${f1(F)} N</b> over <b>${f1(dist)} m</b>. That is only ${pct}% of the ${st.load} N weight. `+(st.angle<=22?'Gentle ramp: less force, but a longer distance.':'Steeper ramp: shorter distance, but more force.');
+      if(st.surf==='rough')t+=' The rough surface adds friction, so the force is a little higher.';}
+    $('ipExp').innerHTML=t;
+  }
+  function renderRes(){const tb=$('ipRes');tb.innerHTML=st.res.length?'':'<tr><td class="empty" colspan="3">Pull the box, then press Record</td></tr>';
+    st.res.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r.m}</td><td class="num">${r.d}</td><td class="num">${r.f}</td>`;tb.appendChild(tr);});}
+  function resetPos(){if(stop)stop();st.p=0;st.pulling=false;st.measured=false;$('ipGo').textContent='Pull the box';render();}
+  $('ipGo').onclick=()=>{if(stop)stop();const from=st.p>=1?0:st.p;st.pulling=true;
+    stop=tween(2000*(1-from),t=>{st.p=from+(1-from)*ease(t);render();},()=>{st.pulling=false;st.measured=true;$('ipGo').textContent='Pull again';render();});};
+  $('ipRec').onclick=()=>{if(!st.measured){$('ipExp').innerHTML='Pull the box first, then record the Newton meter reading.';return;}
+    const s=Math.sin(st.angle*Math.PI/180);
+    st.res.unshift({m:st.mode==='lift'?'Straight up':`${st.angle}\u00B0 ramp (${word(st.angle)})`+(st.surf==='rough'?', rough':''),d:f1(st.mode==='lift'?1:1/s)+' m',f:f1(force())+' N'});
+    if(st.res.length>7)st.res.pop();renderRes();};
+  $('ipClr').onclick=()=>{st.res=[];renderRes();};
+  $('ipReset').onclick=()=>{st.angle=30;st.load=10;st.surf='smooth';st.mode='ramp';$('ipAngle').value=30;setSeg('ipLoad',10);setSeg('ipSurfB','smooth');setSeg('ipMode','ramp');resetPos();};
+  $('ipAngle').addEventListener('input',e=>{st.angle=+e.target.value;resetPos();});
+  $('ipPre').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.angle=+b.dataset.v;$('ipAngle').value=st.angle;if(st.mode==='lift'){st.mode='ramp';setSeg('ipMode','ramp');}resetPos();});
+  seg('ipMode',v=>{st.mode=v;resetPos();});seg('ipLoad',v=>{st.load=+v;resetPos();});seg('ipSurfB',v=>{st.surf=v;resetPos();});
+  render();renderRes();
+})();
+
+/* ================= LEVERS ================= */
+const Lever={};
+(function(){ /* ---- mode switch ---- */
+  const info={bal:['Levers - Number Balance','Tap a number on the EFFORT side to hang a weight. Can you balance the load?'],
+    ful:['Levers - Move the Fulcrum','Drag the stone (fulcrum). Then push down. Where is lifting the rock easiest?'],
+    day:['Levers - Everyday Levers','Find the effort, load and fulcrum. Is the tool force-saving?']};
+  seg('lvMode',v=>{$('lbSvg').style.display=v==='bal'?'':'none';$('lfSvg').style.display=v==='ful'?'':'none';$('leSvg').style.display=v==='day'?'':'none';
+    $('lbRead').style.display=v==='bal'?'':'none';$('lfRead').style.display=v==='ful'?'':'none';$('leRead').style.display=v==='day'?'':'none';
+    $('lbSide').style.display=v==='bal'?'contents':'none';$('lfSide').style.display=v==='ful'?'contents':'none';$('leSide').style.display=v==='day'?'contents':'none';
+    $('lvTitle').textContent=info[v][0];$('lvSub').textContent=info[v][1];Lever.mode=v;Lever.pill();});
+  Lever.mode='bal';
+  Lever.pill=()=>{const p=$('lvPill');if(Lever.mode==='bal')Lever.balPill(p);else if(Lever.mode==='ful')Lever.fulPill(p);else Lever.dayPill(p);};
+})();
+
+(function(){ /* ---- number balance ---- */
+  const BX=500,BY=200,SP=42;
+  const st={left:new Array(11).fill(0),lp:5,ln:4,mode:'add',ang:0,tgt:0,raf:null,res:{}};
+  const beam=$('lbBeam'),hang=$('lbHang'),hz=$('lbHz');
+  S('rect',{x:-452,y:-16,width:904,height:32,rx:10,fill:'#ffd75e',stroke:'#c9a227','stroke-width':4},beam);
+  for(let i=1;i<=10;i++)[-1,1].forEach(sd=>{const x=sd*i*SP;
+    T(String(i),{x,y:8,'text-anchor':'middle','font-size':21,'font-weight':900,fill:sd<0?'#1f5aa6':'#a84f0c'},beam);
+    S('line',{x1:x,y1:16,x2:x,y2:30,stroke:'#6b7a90','stroke-width':3},beam);S('circle',{cx:x,cy:32,r:4,fill:'#6b7a90'},beam);
+    const r=S('rect',{x:BX+x-21,y:120,width:42,height:410,fill:sd<0?'#2a76d2':'#e9781c','fill-opacity':0,class:'hz'},hz);
+    r.addEventListener('click',()=>tap(sd,i));});
+  function peg(x){const a=st.ang*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return[BX+x*c-36*s,BY+x*s+36*c];}
+  function stack(x,n,fill,stroke){const[px,py]=peg(x);S('line',{x1:px,y1:py,x2:px,y2:py+8,stroke:'#6b7a90','stroke-width':3},hang);
+    for(let k=0;k<n;k++)S('rect',{x:px-15,y:py+8+k*19,width:30,height:17,rx:4,fill,stroke,'stroke-width':2.5},hang);
+    T(String(n),{x:px,y:py+8+n*19+22,'text-anchor':'middle','font-size':21,'font-weight':900,fill:stroke},hang);}
+  function draw(){beam.setAttribute('transform',`translate(${BX},${BY}) rotate(${st.ang})`);clear(hang);
+    for(let i=1;i<=10;i++)if(st.left[i])stack(-i*SP,st.left[i],'#5b9bf0','#1f5aa6');
+    stack(st.lp*SP,st.ln,'#f39a4a','#a84f0c');}
+  function loop(){st.ang+=(st.tgt-st.ang)*0.12;if(Math.abs(st.tgt-st.ang)<0.02)st.ang=st.tgt;draw();st.raf=st.ang!==st.tgt?requestAnimationFrame(loop):null;}
+  const tq=()=>st.left.reduce((s,n,i)=>s+n*i,0);
+  function update(){const L=tq(),R=st.lp*st.ln;st.tgt=clamp((R-L)*2,-12,12);if(!st.raf)st.raf=requestAnimationFrame(loop);
+    const used=[];st.left.forEach((n,i)=>{if(n)used.push(i);});
+    $('lbE').textContent=used.length===0?'0':used.length===1?`${st.left[used[0]]} x ${used[0]} = ${L}`:`${L}`;
+    $('lbL').textContent=`${st.ln} x ${st.lp} = ${R}`;$('lbN').textContent=st.left.reduce((a,b)=>a+b,0);
+    const s=$('lbStatus');if(L===R&&L>0){s.textContent='BALANCED!';s.setAttribute('fill','#18864b');}
+    else if(L===0){s.textContent='Add effort weights';s.setAttribute('fill','#7356d1');}
+    else if(L>R){s.textContent='Effort side goes down';s.setAttribute('fill','#1f5aa6');}else{s.textContent='Load side goes down';s.setAttribute('fill','#a84f0c');}
+    let t;
+    if(L===0)t=`The load is <b>${st.ln} weights at position ${st.lp}</b>. Predict how many weights you need at positions 2, 4, 5 and 10 to balance it.`;
+    else if(L===R){t=`Balanced! Effort side ${L} = load side ${R}.`;if(used.length===1){const p=used[0];t+=p>st.lp?` The effort is <b>further</b> from the fulcrum than the load, so <b>fewer weights</b> are needed. Force-saving!`:p<st.lp?` The effort is <b>closer</b> to the fulcrum than the load, so <b>more weights</b> are needed. Not force-saving.`:` Same distance, same number of weights.`;
+      if(st.res[p]===undefined||true){st.res[p]=st.left[p];renderRes();}}}
+    else t=L>R?'The effort side is heavier. Remove a weight or move it closer to the middle.':'The load side is heavier. Add a weight or use a position further from the middle.';
+    $('lbExp').innerHTML=t;$('lbNv').textContent=st.ln;$('lbPv').textContent=st.lp;$('lbResHead').textContent=`${st.ln} weights at ${st.lp}`;Lever.pill();}
+  Lever.balPill=p=>{const L=tq(),R=st.lp*st.ln;p.textContent=L===R&&L>0?'Balanced':'Not balanced';p.classList.toggle('good',L===R&&L>0);};
+  function renderRes(){const tb=$('lbRes');tb.innerHTML='';const keys=[2,4,5,10];Object.keys(st.res).forEach(k=>{if(!keys.includes(+k))keys.push(+k);});keys.sort((a,b)=>a-b);
+    keys.forEach(k=>{const tr=document.createElement('tr');tr.innerHTML=`<td>Position ${k}</td><td class="num">${st.res[k]!==undefined?st.res[k]:'<span class="empty">-</span>'}</td>`;tb.appendChild(tr);});}
+  function tap(sd,i){if(sd>0){if(st.lp!==i){st.lp=i;st.res={};renderRes();}update();return;}
+    st.left[i]=clamp(st.left[i]+(st.mode==='add'?1:-1),0,12);update();}
+  seg('lbTap',v=>st.mode=v);
+  const loadChange=()=>{st.res={};renderRes();update();};
+  $('lbNm').onclick=()=>{st.ln=clamp(st.ln-1,1,6);loadChange();};$('lbNp').onclick=()=>{st.ln=clamp(st.ln+1,1,6);loadChange();};
+  $('lbPm').onclick=()=>{st.lp=clamp(st.lp-1,1,10);loadChange();};$('lbPp').onclick=()=>{st.lp=clamp(st.lp+1,1,10);loadChange();};
+  $('lbReset').onclick=()=>{st.left.fill(0);st.ln=4;st.lp=5;st.res={};setSeg('lbTap','add');st.mode='add';renderRes();update();};
+  renderRes();update();
+})();
+
+(function(){ /* ---- move the fulcrum ---- */
+  const svg=$('lfSvg'),GY=460,AP=380,PT=358;
+  const st={f:5,load:300,p:0,labels:true};let stop=null,drag=false;
+  const plank=$('lfPlank'),ful=$('lfFul'),kid=$('lfKid'),arms=$('lfArms'),labs=$('lfLabels'),dims=$('lfDims');
+  // plank + rock
+  S('rect',{x:60,y:PT,width:800,height:22,rx:6,fill:'#cf9654',stroke:'#8a5a2b','stroke-width':3},plank);
+  for(let i=1;i<10;i++)S('line',{x1:60+80*i,y1:PT+4,x2:60+80*i,y2:PT+18,stroke:'#a8713a','stroke-width':2},plank);
+  const rock=S('g',{},plank);
+  S('path',{d:'M-58,0 C-68,-30 -52,-72 -18,-86 C12,-98 46,-82 58,-54 C68,-30 64,-10 58,0 Z',fill:'#9aa3ae',stroke:'#5f6875','stroke-width':4,'stroke-linejoin':'round'},rock);
+  S('path',{d:'M-30,-70 q14,-10 30,-6',fill:'none',stroke:'#c8ced6','stroke-width':5,'stroke-linecap':'round'},rock);
+  S('path',{d:'M20,-20 l12,-10 l4,8',fill:'none',stroke:'#6b7480','stroke-width':3},rock);
+  const rockTxt=T('300 N',{x:0,y:-34,'text-anchor':'middle','font-size':24,'font-weight':900,fill:'#fff',stroke:'#4b535e','stroke-width':1},rock);
+  // fulcrum stone
+  S('rect',{x:-75,y:350,width:150,height:120,fill:'#fff','fill-opacity':0.001},ful);
+  S('path',{d:'M0,380 L-55,460 L55,460 Z',fill:'#8d99a8',stroke:'#58657a','stroke-width':4,'stroke-linejoin':'round'},ful);
+  S('path',{d:'M-14,428 h28 M-22,444 h44',stroke:'#c3cbd6','stroke-width':4,'stroke-linecap':'round'},ful);
+  // kid
+  S('rect',{x:897,y:420,width:12,height:40,rx:5,fill:'#f5c9a0'},kid);S('rect',{x:921,y:420,width:12,height:40,rx:5,fill:'#f5c9a0'},kid);
+  S('ellipse',{cx:899,cy:458,rx:13,ry:6,fill:'#2b3a67'},kid);S('ellipse',{cx:923,cy:458,rx:13,ry:6,fill:'#2b3a67'},kid);
+  S('rect',{x:892,y:404,width:46,height:24,rx:6,fill:'#2b3a67'},kid);
+  S('rect',{x:889,y:352,width:52,height:62,rx:18,fill:'#e9781c',stroke:'#b65a10','stroke-width':3},kid);
+  S('circle',{cx:915,cy:320,r:28,fill:'#f5c9a0',stroke:'#c98f62','stroke-width':3},kid);
+  S('path',{d:'M886,318 C884,286 946,282 944,314 C934,302 906,300 886,318 Z',fill:'#4a2f1b'},kid);
+  S('circle',{cx:902,cy:322,r:3.5,fill:'#1f2a44'},kid);S('circle',{cx:921,cy:322,r:3.5,fill:'#1f2a44'},kid);
+  S('path',{d:'M899,334 Q908,341 917,334',fill:'none',stroke:'#8a4b2b','stroke-width':3,'stroke-linecap':'round'},kid);
+  S('circle',{cx:928,cy:331,r:5,fill:'#f4a3a3',opacity:.7},kid);
+  function pillTag(g,x,y,txt,col){const w=txt.length*13+28;S('rect',{x:x-w/2,y:y-20,width:w,height:36,rx:18,fill:col},g);T(txt,{x,y:y+6,'text-anchor':'middle','font-size':21,'font-weight':900,fill:'#fff'},g);}
+  function eff(){const fx=60+80*st.f;return{fx,dL:st.f-0.5,dE:9.5-st.f};}
+  function render(){
+    const {fx,dL,dE}=eff();const E=st.load*dL/dE;
+    const amax=Math.min(20,Math.asin(Math.min(1,80/(860-fx)))*180/Math.PI);const a=amax*st.p,ar=a*Math.PI/180,c=Math.cos(ar),s=Math.sin(ar);
+    const rot=(x,y)=>[fx+(x-fx)*c-(y-AP)*s,AP+(x-fx)*s+(y-AP)*c];
+    ful.setAttribute('transform',`translate(${fx},0)`);plank.setAttribute('transform',`rotate(${a} ${fx} ${AP})`);
+    const sc={100:.75,300:1,600:1.25}[st.load];rock.setAttribute('transform',`translate(100,${PT}) scale(${sc})`);rockTxt.textContent=st.load+' N';
+    const[ex,ey]=rot(820,PT),[lx,ly]=rot(100,PT);
+    const ky=(ey-PT)*0.55;kid.setAttribute('transform',`translate(0,${ky})`);
+    clear(arms);S('path',{d:`M900,${378+ky} L${ex+4},${ey-8} M916,${384+ky} L${ex+18},${ey-6}`,stroke:'#f5c9a0','stroke-width':12,'stroke-linecap':'round',fill:'none'},arms);
+    S('circle',{cx:ex+4,cy:ey-8,r:9,fill:'#f5c9a0',stroke:'#c98f62','stroke-width':2},arms);S('circle',{cx:ex+18,cy:ey-6,r:9,fill:'#f5c9a0',stroke:'#c98f62','stroke-width':2},arms);
+    clear(labs);
+    // effort arrow
+    S('path',{d:`M${ex},${ey-128} V${ey-42}`,stroke:'#2a76d2','stroke-width':9,'stroke-linecap':'round'},labs);
+    S('polygon',{points:`${ex-16},${ey-46} ${ex+16},${ey-46} ${ex},${ey-20}`,fill:'#2a76d2'},labs);
+    if(st.labels){
+      T(`Effort ${Math.round(E)} N`,{x:ex-18,y:ey-100,'text-anchor':'end','font-size':24,'font-weight':900,fill:'#1f5aa6'},labs);
+      pillTag(labs,lx,ly-92*sc-26,'LOAD','#e9781c');
+      if(fx>500)pillTag(labs,fx-118,440,'FULCRUM','#239a60');else pillTag(labs,fx+118,440,'FULCRUM','#239a60');
+      pillTag(labs,ex-80,ey-160,'EFFORT','#2a76d2');
+    }
+    // distance lines on the floor
+    clear(dims);
+    const dimLine=(x1,x2,y,col,txt)=>{S('line',{x1,y1:y,x2,y2:y,stroke:col,'stroke-width':5},dims);S('line',{x1,y1:y-10,x2:x1,y2:y+10,stroke:col,'stroke-width':5},dims);S('line',{x1:x2,y1:y-10,x2,y2:y+10,stroke:col,'stroke-width':5},dims);
+      T(txt,{x:clamp((x1+x2)/2,150,850),y:y+24,'text-anchor':'middle','font-size':21,'font-weight':800,fill:col},dims);};
+    dimLine(100,fx,482,'#c25f0c',`Load to fulcrum: ${Math.round(dL*20)} cm`);
+    dimLine(fx,820,522,'#1f5aa6',`Effort to fulcrum: ${Math.round(dE*20)} cm`);
+    // readouts
+    $('lfLo').textContent=st.load+' N';$('lfEf').textContent=Math.round(E)+' N';
+    $('lfUp').textContent=Math.round((PT-ly)/4)+' cm';$('lfDn').textContent=Math.round((ey-PT)/4)+' cm';
+    $('lfFv').textContent=st.f<5?'near the load':st.f>5?'near the effort':'middle';
+    let t;
+    if(dE>dL)t=`The effort is <b>further</b> from the fulcrum than the load, so you only need <b>${Math.round(E)} N</b> to lift a ${st.load} N rock. <b>Force-saving!</b> But your hands must move further down than the rock goes up.`;
+    else if(dE<dL)t=`The effort is <b>closer</b> to the fulcrum than the load, so you need <b>${Math.round(E)} N</b>, more than the rock's weight. <b>Not force-saving.</b> Move the fulcrum closer to the rock.`;
+    else t=`The fulcrum is in the middle. The effort equals the load: <b>${st.load} N</b>. Try moving the fulcrum.`;
+    $('lfExp').innerHTML=t;Lever.pill();
+  }
+  Lever.fulPill=p=>{const{dL,dE}=eff();p.textContent=dE>dL?'Force-saving':dE<dL?'Not force-saving':'Effort = load';p.classList.toggle('good',dE>dL);};
+  function setF(v){v=clamp(v,1.5,8.5);if(v===st.f)return;if(stop)stop();st.f=v;st.p=0;$('lfPush').textContent='Push down';$('lfF').value=v;render();}
+  ful.addEventListener('pointerdown',e=>{drag=true;try{ful.setPointerCapture(e.pointerId);}catch(_){}e.preventDefault();});
+  ful.addEventListener('pointermove',e=>{if(!drag)return;const p=svgPoint(svg,e);setF(Math.round((p.x-60)/80*2)/2);});
+  const end=()=>{drag=false;};ful.addEventListener('pointerup',end);ful.addEventListener('pointercancel',end);
+  $('lfF').addEventListener('input',e=>setF(+e.target.value));
+  seg('lfLoad',v=>{st.load=+v;render();});
+  $('lfPush').onclick=()=>{if(stop)stop();const from=st.p,to=st.p>0.5?0:1;$('lfPush').textContent=to?'Let go':'Push down';
+    stop=tween(900,t=>{st.p=from+(to-from)*ease(t);render();});};
+  $('lfLab').onclick=()=>{st.labels=!st.labels;$('lfLab').textContent=st.labels?'Hide labels':'Show labels';render();};
+  $('lfReset').onclick=()=>{if(stop)stop();st.f=5;st.load=300;st.p=0;st.labels=true;$('lfF').value=5;setSeg('lfLoad',300);$('lfPush').textContent='Push down';$('lfLab').textContent='Hide labels';render();};
+  render();
+})();
+
+(function(){ /* ---- everyday levers ---- */
+  const art=$('leArt'),lines=$('leLines'),marks=$('leMarks');
+  const COL={E:'#2a76d2',L:'#e9781c',F:'#239a60'},NAME={E:'Effort',L:'Load',F:'Fulcrum'};
+  const ITEMS=[
+    {n:'Scissors',save:true,
+     why:'The effort (your hand on the handles) is <b>further</b> from the fulcrum (the hinge) than the load (the paper). Scissors are force-saving. Tip: cut close to the hinge for the most power.',
+     m:{E:[240,260,240,412],F:[420,260,430,348],L:[556,260,556,108]},
+     draw(g){S('rect',{x:548,y:140,width:16,height:240,rx:3,fill:'#cfe3ff',stroke:'#7aa6d9','stroke-width':3,transform:'rotate(4 556 260)'},g);
+      S('path',{d:'M420,252 L850,196 Q864,200 852,212 L430,276 Z',fill:'#d7dee8',stroke:'#7d8ea3','stroke-width':4,'stroke-linejoin':'round'},g);
+      S('path',{d:'M420,268 L850,324 Q864,320 852,308 L430,244 Z',fill:'#e9eef4',stroke:'#7d8ea3','stroke-width':4,'stroke-linejoin':'round'},g);
+      S('path',{d:'M425,250 L300,214 M425,270 L300,306',stroke:'#d93d73','stroke-width':18,'stroke-linecap':'round'},g);
+      S('ellipse',{cx:240,cy:198,rx:62,ry:38,fill:'none',stroke:'#d93d73','stroke-width':16},g);
+      S('ellipse',{cx:240,cy:322,rx:62,ry:38,fill:'none',stroke:'#d93d73','stroke-width':16},g);
+      S('circle',{cx:420,cy:260,r:9,fill:'#5b6b88'},g);}},
+    {n:'Bread tongs',save:false,
+     why:'The effort (where you squeeze) is <b>closer</b> to the fulcrum (the hinge) than the load (the bread). Tongs are <b>not</b> force-saving, but they help us grip food and keep our hands clean.',
+     m:{F:[182,260,182,186],E:[430,260,430,370],L:[830,260,830,190]},
+     draw(g){S('path',{d:'M190,252 L792,214 M190,268 L792,306',stroke:'#9aa7b8','stroke-width':20,'stroke-linecap':'round'},g);
+      S('path',{d:'M190,252 L792,214 M190,268 L792,306',stroke:'#c9d2dd','stroke-width':8,'stroke-linecap':'round'},g);
+      S('ellipse',{cx:830,cy:260,rx:58,ry:42,fill:'#e0a458',stroke:'#a8692a','stroke-width':4},g);
+      S('path',{d:'M800,246 q14,-8 26,0 M826,268 q14,-8 26,0',fill:'none',stroke:'#a8692a','stroke-width':4,'stroke-linecap':'round'},g);
+      S('circle',{cx:182,cy:260,r:26,fill:'#c2ccd8',stroke:'#7d8ea3','stroke-width':5},g);
+      S('ellipse',{cx:430,cy:212,rx:30,ry:15,fill:'#f5c9a0',stroke:'#c98f62','stroke-width':3},g);
+      S('ellipse',{cx:430,cy:306,rx:34,ry:16,fill:'#f5c9a0',stroke:'#c98f62','stroke-width':3},g);
+      S('path',{d:'M430,160 V190 M420,180 l10,12 l10,-12 M430,360 V330 M420,340 l10,-12 l10,12',fill:'none',stroke:'#2a76d2','stroke-width':5,'stroke-linecap':'round','stroke-linejoin':'round'},g);}},
+    {n:'Wheelbarrow',save:true,
+     why:'The load sits <b>between</b> the wheel (fulcrum) and your hands (effort). Your hands are further from the fulcrum than the load, so a wheelbarrow is force-saving.',
+     m:{E:[176,300,176,232],L:[580,210,580,112],F:[770,400,770,505]},
+     draw(g){S('rect',{x:0,y:466,width:1000,height:94,fill:'#e9dcc3'},g);
+      S('path',{d:'M770,400 L520,350 L170,300',fill:'none',stroke:'#8a5a2b','stroke-width':16,'stroke-linecap':'round','stroke-linejoin':'round'},g);
+      S('path',{d:'M470,346 L456,460 M440,462 h36',fill:'none',stroke:'#8a5a2b','stroke-width':12,'stroke-linecap':'round'},g);
+      S('path',{d:'M390,240 Q470,148 590,168 Q700,148 770,240 Z',fill:'#8b5a2b',stroke:'#5f3c1c','stroke-width':4},g);
+      S('circle',{cx:520,cy:200,r:14,fill:'#9aa3ae'},g);S('circle',{cx:650,cy:196,r:11,fill:'#9aa3ae'},g);
+      S('path',{d:'M360,240 L800,240 L740,340 L440,340 Z',fill:'#239a60',stroke:'#16653e','stroke-width':5,'stroke-linejoin':'round'},g);
+      S('circle',{cx:770,cy:400,r:64,fill:'#3b4252'},g);S('circle',{cx:770,cy:400,r:36,fill:'#cfd6df'},g);S('circle',{cx:770,cy:400,r:9,fill:'#3b4252'},g);
+      S('rect',{x:150,y:290,width:50,height:22,rx:10,fill:'#d93d73',transform:'rotate(8 175 301)'},g);}},
+    {n:'Bottle opener',save:true,
+     why:'Your hand (effort) is <b>far</b> from the fulcrum, but the cap (load) is very <b>close</b> to it. Only a small effort is needed to lift the cap. Force-saving!',
+     m:{F:[258,212,190,150],L:[340,252,420,300],E:[846,162,846,92]},
+     draw(g){S('path',{d:'M250,520 L250,370 Q250,322 282,300 L282,244 L318,244 L318,300 Q350,322 350,370 L350,520 Z',fill:'#8fd1ad',stroke:'#3f8a66','stroke-width':4,'stroke-linejoin':'round'},g);
+      S('rect',{x:262,y:410,width:76,height:60,rx:6,fill:'#fff',opacity:.8},g);
+      S('rect',{x:270,y:222,width:60,height:22,rx:4,fill:'#e0573b',stroke:'#a33a22','stroke-width':3},g);
+      S('path',{d:'M240,206 L860,160',stroke:'#5b6b88','stroke-width':32,'stroke-linecap':'round'},g);
+      S('path',{d:'M560,184 L860,160',stroke:'#d93d73','stroke-width':36,'stroke-linecap':'round'},g);
+      S('polygon',{points:'324,214 346,212 346,248 330,244',fill:'#5b6b88'},g);
+      S('circle',{cx:300,cy:202,r:8,fill:'#fbfaff'},g);}}];
+  const st={i:0,rev:{},ans:null};
+  function render(){const it=ITEMS[st.i];clear(art);clear(lines);clear(marks);it.draw(art);
+    const all=['E','L','F'].every(k=>st.rev[k]);
+    if(all){const[fx,fy]=it.m.F;[['E',COL.E],['L',COL.L]].forEach(([k,c])=>S('line',{x1:fx,y1:fy,x2:it.m[k][0],y2:it.m[k][1],stroke:c,'stroke-width':6,'stroke-dasharray':'12 9','stroke-linecap':'round'},lines));}
+    ['E','L','F'].forEach(k=>{const[x,y,lx,ly]=it.m[k];const g=S('g',{class:'mk'},marks);const on=st.rev[k];
+      S('circle',{cx:x,cy:y,r:30,fill:'#fff','fill-opacity':0.001},g);
+      S('circle',{cx:x,cy:y,r:22,fill:on?COL[k]:'#fff',stroke:on?'#fff':'#7d8ea3','stroke-width':4,'stroke-dasharray':on?'':'6 4','fill-opacity':on?.95:.9},g);
+      T(on?k:'?',{x,y:y+9,'text-anchor':'middle','font-size':26,'font-weight':900,fill:on?'#fff':'#5b6b88'},g);
+      if(on){const w=NAME[k].length*14+30;S('rect',{x:lx-w/2,y:ly-21,width:w,height:38,rx:19,fill:COL[k]},g);T(NAME[k],{x:lx,y:ly+7,'text-anchor':'middle','font-size':22,'font-weight':900,fill:'#fff'},g);}
+      g.addEventListener('click',()=>{st.rev[k]=!st.rev[k];render();});});
+    const n=Object.values(st.rev).filter(Boolean).length;$('leName').textContent=it.n;$('leFound').textContent=n+' / 3';
+    $('leSave').textContent=st.ans===null?'?':(it.save?'Yes':'No');
+    $('leYes').classList.toggle('on',st.ans===true);$('leNo').classList.toggle('on',st.ans===false);
+    let t;if(st.ans===null)t=n<3?'Tap the question marks to find the <b>effort</b>, <b>load</b> and <b>fulcrum</b>. Then decide if the tool is force-saving.':'Compare the dashed lines: is the effort further from the fulcrum than the load?';
+    else t=(st.ans===it.save?'<b>Correct!</b> ':'<b>Not quite.</b> ')+it.why;
+    $('leExp').innerHTML=t;Lever.pill();}
+  Lever.dayPill=p=>{const it=ITEMS[st.i];p.textContent=st.ans===null?it.n:(st.ans===it.save?'Correct':'Try again');p.classList.toggle('good',st.ans!==null&&st.ans===it.save);};
+  seg('leItem',v=>{st.i=+v;st.rev={};st.ans=null;render();});
+  $('leAll').onclick=()=>{st.rev={E:true,L:true,F:true};render();};
+  $('leHide').onclick=()=>{st.rev={};st.ans=null;render();};
+  $('leYes').onclick=()=>{st.ans=true;st.rev={E:true,L:true,F:true};render();};
+  $('leNo').onclick=()=>{st.ans=false;st.rev={E:true,L:true,F:true};render();};
+  render();
+})();
+
+/* ================= PULLEYS ================= */
+(function(){
+  const r=32,TOPY=150,BEAMB=66,BOT0=330,HAND0=190,STOOL=466;
+  const st={n:1,load:12,h:0,show:true,res:{}};let stop=null;
+  const g=$('puG');const meter=Meter($('puMeterG'),22,110,112,262);meter.setMax(12);
+  function pulley(x,y){S('circle',{cx:x,cy:y,r:r-2,fill:'#dfe7f1',stroke:'#5f7391','stroke-width':4},g);S('circle',{cx:x,cy:y,r:r-10,fill:'none',stroke:'#a9b7c9','stroke-width':3},g);}
+  function render(){clear(g);
+    const n=st.n,h=st.h,x0=500-(n-1)*r,yB=BOT0-h,eff=st.load/n;
+    const seq=[];for(let i=0;i<n;i++){let top;if(n===1)top=true;else if(n%2===0)top=i%2===1;else top=i%2===0;seq.push({x:x0+2*r*i,y:top?TOPY:yB,top});}
+    const xh=x0+(2*n-1)*r,handTop=HAND0+n*h;
+    // top brackets
+    seq.filter(p=>p.top).forEach(p=>S('path',{d:`M${p.x-13},${BEAMB} L${p.x},${p.y} L${p.x+13},${BEAMB}`,fill:'none',stroke:'#5f7391','stroke-width':6,'stroke-linejoin':'round'},g));
+    // bottom block + load
+    let loadCx,loadTop,sx,sy,blockTop=0;
+    if(n===1){loadCx=x0-r;loadTop=396-h;sx=x0-r;sy=loadTop+2;}
+    else{const bots=seq.filter(p=>!p.top);let L=Math.min(...bots.map(p=>p.x))-r;const R=Math.max(...bots.map(p=>p.x))+r;if(n%2===1)L=Math.min(L,x0-r-8);
+      blockTop=yB+r+6;bots.forEach(p=>S('line',{x1:p.x,y1:p.y,x2:p.x,y2:blockTop,stroke:'#5f7391','stroke-width':6},g));
+      S('rect',{x:L-6,y:blockTop,width:R-L+12,height:16,rx:6,fill:'#7c8ea8',stroke:'#4d5e78','stroke-width':3},g);
+      loadCx=(L+R)/2;S('line',{x1:loadCx,y1:blockTop+16,x2:loadCx,y2:blockTop+30,stroke:'#4d5e78','stroke-width':5},g);loadTop=blockTop+30;
+      if(n%2===0){sx=x0-r;sy=BEAMB;S('rect',{x:sx-10,y:BEAMB,width:20,height:8,fill:'#4d5e78'},g);}else{sx=x0-r;sy=blockTop;S('circle',{cx:sx,cy:sy,r:6,fill:'#7a5230'},g);}}
+    // stool
+    S('rect',{x:loadCx-44,y:STOOL,width:88,height:12,rx:3,fill:'#c98f4f',stroke:'#8a5a2b','stroke-width':3},g);
+    S('path',{d:`M${loadCx-34},${STOOL+12} V600 M${loadCx+34},${STOOL+12} V600`,stroke:'#8a5a2b','stroke-width':8},g);
+    // ruler
+    const rx=loadCx-100;S('rect',{x:rx-10,y:400,width:20,height:66,fill:'#ffe9a8',stroke:'#c9a227','stroke-width':2},g);S('line',{x1:rx,y1:466,x2:rx,y2:600,stroke:'#c9a227','stroke-width':5},g);
+    for(let c=0;c<=60;c+=10){S('line',{x1:rx-10,y1:STOOL-c,x2:rx+(c%50===0?6:0),y2:STOOL-c,stroke:'#8a6d1f','stroke-width':2},g);}
+    T('50 cm',{x:rx-16,y:STOOL-44,'text-anchor':'end','font-size':18,'font-weight':800,fill:'#8a6d1f'},g);T('0',{x:rx-16,y:STOOL+6,'text-anchor':'end','font-size':18,'font-weight':800,fill:'#8a6d1f'},g);
+    S('polygon',{points:`${rx+12},${STOOL-h} ${rx+24},${STOOL-h-8} ${rx+24},${STOOL-h+8}`,fill:'#d94b2b'},g);
+    // pulleys (wheels), rope, axles
+    seq.forEach(p=>pulley(p.x,p.y));
+    let d=`M${sx},${sy}`;seq.forEach(p=>{d+=` L${p.x-r},${p.y} A${r} ${r} 0 0 ${p.top?1:0} ${p.x+r},${p.y}`;});d+=` L${xh},${handTop}`;
+    S('path',{d,fill:'none',stroke:'#a8642a','stroke-width':5,'stroke-linecap':'round','stroke-linejoin':'round'},g);
+    if(st.show){const segs=[[sx,sy,x0-r,seq[0].y]];for(let i=0;i<n-1;i++)segs.push([seq[i].x+r,seq[i].y,seq[i].x+r,seq[i+1].y]);
+      segs.forEach(s=>S('line',{x1:s[0],y1:s[1],x2:s[2],y2:s[3],stroke:'#ff8a1f','stroke-width':9,'stroke-linecap':'round',opacity:.85},g));
+      segs.forEach((s,i)=>{const my=(s[1]+s[3])/2;S('circle',{cx:s[0],cy:my,r:15,fill:'#e9781c',stroke:'#fff','stroke-width':3},g);T(String(i+1),{x:s[0],y:my+7,'text-anchor':'middle','font-size':19,'font-weight':900,fill:'#fff'},g);});}
+    seq.forEach(p=>S('circle',{cx:p.x,cy:p.y,r:7,fill:'#5f7391'},g));
+    // load
+    const lg=S('g',{transform:`translate(${loadCx},${loadTop})`},g);
+    S('circle',{cx:0,cy:6,r:7,fill:'none',stroke:'#4d5e78','stroke-width':4},lg);
+    S('path',{d:'M-28,14 H28 Q34,14 35,20 L40,64 Q41,70 34,70 H-34 Q-41,70 -40,64 L-35,20 Q-34,14 -28,14 Z',fill:'#5f6f86',stroke:'#3d4a5e','stroke-width':3},lg);
+    T(st.load+' N',{x:0,y:52,'text-anchor':'middle','font-size':23,'font-weight':900,fill:'#fff'},lg);
+    if(h>0){S('path',{d:`M${loadCx-58},${loadTop+60} V${loadTop+14}`,stroke:'#239a60','stroke-width':6,'stroke-linecap':'round'},g);S('polygon',{points:`${loadCx-68},${loadTop+20} ${loadCx-48},${loadTop+20} ${loadCx-58},${loadTop+4}`,fill:'#239a60'},g);}
+    // hand + small newton meter
+    const reading=h>0?eff:0;const mg=S('g',{transform:`translate(${xh},${handTop})`},g);
+    S('circle',{cx:0,cy:6,r:6,fill:'none',stroke:'#8a6d1f','stroke-width':3},mg);
+    S('rect',{x:-12,y:12,width:24,height:56,rx:8,fill:'#ffd75e',stroke:'#c9a227','stroke-width':3},mg);
+    S('rect',{x:-9,y:16+clamp(reading/st.load,0,1)*44,width:18,height:4,fill:'#e03b3b'},mg);
+    S('line',{x1:0,y1:68,x2:0,y2:78,stroke:'#8a6d1f','stroke-width':4},mg);
+    S('circle',{cx:0,cy:92,r:15,fill:'#f5c9a0',stroke:'#c98f62','stroke-width':3},mg);S('path',{d:'M-8,86 h16 M-8,92 h16 M-8,98 h16',stroke:'#c98f62','stroke-width':2},mg);
+    S('path',{d:'M34,20 V78',stroke:'#2a76d2','stroke-width':6,'stroke-linecap':'round'},mg);S('polygon',{points:'24,72 44,72 34,90',fill:'#2a76d2'},mg);
+    T('pull',{x:52,y:52,'font-size':22,'font-weight':800,fill:'#1f5aa6'},mg);T('down',{x:52,y:76,'font-size':22,'font-weight':800,fill:'#1f5aa6'},mg);
+    // readouts
+    meter.set(reading);$('puMeterVal').textContent=nice(reading)+' N';
+    $('puLo').textContent=st.load+' N';$('puEf').textContent=h>0?nice(eff)+' N':'?';$('puRp').textContent=(n*h)+' cm';$('puLf').textContent=h+' cm';$('puHv').textContent=h+' cm';
+    $('puPill').textContent=n+(n===1?' pulley':' pulleys');
+    let t;if(h===0)t=`Predict: with <b>${n} pulley${n>1?'s':''}</b>, how much effort is needed to lift the ${st.load} N load? Then lift it.`;
+    else if(n===1)t=`One pulley needs <b>${nice(eff)} N</b>, the same as the load. It is <b>not force-saving</b>, but it <b>changes the direction</b>: you pull down to lift the load up.`;
+    else t=`<b>${n} rope sections</b> share the load, so the effort is ${st.load} &divide; ${n} = <b>${nice(eff)} N</b>. But to lift the load ${h} cm you must pull <b>${n*h} cm</b> of rope.`;
+    $('puExp').innerHTML=t;
+    if(h>0&&st.res[n]===undefined){st.res[n]=eff;renderRes();}
+  }
+  function renderRes(){const tb=$('puRes');tb.innerHTML='';[1,2,3,4,6].forEach(k=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${k}</td><td class="num">${k}</td><td class="num">${st.res[k]!==undefined?nice(st.res[k])+' N':'<span class="empty">-</span>'}</td>`;tb.appendChild(tr);});$('puResHead').textContent='load '+st.load+' N';}
+  function setH(v){st.h=clamp(Math.round(v),0,50);$('puH').value=st.h;render();}
+  function go(to){if(stop)stop();const from=st.h;stop=tween(Math.abs(to-from)*40+200,t=>setH(from+(to-from)*ease(t)));}
+  seg('puN',v=>{if(stop)stop();st.n=+v;setH(0);});
+  seg('puLoad',v=>{if(stop)stop();st.load=+v;meter.setMax(st.load);st.res={};renderRes();setH(0);});
+  $('puH').addEventListener('input',e=>{if(stop)stop();setH(+e.target.value);});
+  $('puUp').onclick=()=>go(50);$('puDown').onclick=()=>go(0);
+  $('puCnt').onclick=()=>{st.show=!st.show;$('puCnt').textContent=st.show?'Hide rope count':'Show rope count';render();};
+  $('puReset').onclick=()=>{if(stop)stop();st.n=1;st.load=12;st.res={};st.show=true;meter.setMax(12);setSeg('puN',1);setSeg('puLoad',12);$('puCnt').textContent='Hide rope count';renderRes();setH(0);};
+  renderRes();render();
+})();
+
+/* ================= QUIZ ================= */
+(function(){
+  const ICON={
+    rollers:'<svg viewBox="0 0 24 24" fill="none" stroke="#e9781c" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="8" rx="1.5"/><circle cx="8" cy="16" r="3"/><circle cx="16" cy="16" r="3"/><path d="M2 21h20"/></svg>',
+    ramps:'<svg viewBox="0 0 24 24" fill="none" stroke="#239a60" stroke-width="2" stroke-linejoin="round"><path d="M2 20H22V7Z"/><rect x="9" y="9" width="5" height="4" transform="rotate(-31 11.5 11)"/></svg>',
+    levers:'<svg viewBox="0 0 24 24" fill="none" stroke="#7356d1" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M2 9 22 14"/><path d="M12 12 8.5 20H15.5Z"/><rect x="3" y="4" width="4" height="4"/></svg>',
+    pulleys:'<svg viewBox="0 0 24 24" fill="none" stroke="#2a76d2" stroke-width="2" stroke-linecap="round"><path d="M4 2h16M12 2v3"/><circle cx="12" cy="9" r="4"/><path d="M8 9v8M16 9v11"/><rect x="5" y="17" width="6" height="5" rx="1"/></svg>',
+    general:'<svg viewBox="0 0 24 24" fill="none" stroke="#d93d73" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.2 9.3a2.9 2.9 0 1 1 4 2.7c-.8.4-1.2 1-1.2 1.9v.6"/><circle cx="12" cy="17.6" r=".6" fill="#d93d73"/></svg>'};
+  const TNAME={rollers:'Rollers',ramps:'Inclined Planes',levers:'Levers',pulleys:'Pulleys',general:'Simple Machines'};
+  const TF=['True','False'];
+  function opts(c,cands){const out=[c],seen=new Set([c]);cands.forEach(x=>{if(out.length<4&&!seen.has(x)){seen.add(x);out.push(x);}});return out;}
+  const POOL={
+  rollers:[
+    {q:'How do rollers make it easier to move a heavy object?',o:['They reduce friction','They make the object lighter','They increase friction','They change the shape of the object'],a:0,e:'Rollers roll instead of dragging, which reduces friction. Less friction means less force is needed.'},
+    {q:'Which shape works best as a roller?',o:['Round (a cylinder)','A cube','A triangle','A star'],a:0,e:'Round shapes roll smoothly. Corners and flat edges catch and scrape, creating more friction.'},
+    {tf:1,q:'True or False: Two crates of the same weight need the same pulling force when one is dragged flat and the other is on round rollers.',o:TF,a:1,e:'False. Dragging creates lots of friction. On rollers the crate rolls, so much less force is needed.'},
+    {q:'In the marble experiment, the book with pencils underneath needed ____ marbles than the book without pencils.',o:['fewer','more','the same number of','twice as many'],a:0,e:'The pencils acted as rollers and reduced friction, so fewer marbles were needed.'},
+    {q:'What is friction?',o:['A force that opposes movement between two surfaces','A force that only pulls things upwards','A type of simple machine','The size of an object'],a:0,e:'Friction is the force that opposes the movement of one surface over another.'},
+    {q:'Which of these is an everyday use of rollers?',o:['A conveyor belt in a warehouse','A seesaw','A flagpole','A pair of scissors'],a:0,e:'Conveyor belts use round rollers to move boxes with little friction.'},
+    {q:'Apart from using rollers, how else could the book be moved with fewer marbles?',o:['Use a smoother surface','Put more books on top','Use a rougher table','Use a longer string'],a:0,e:'A smoother (or oiled) surface reduces friction. More books would make friction bigger.'},
+    {tf:1,q:'True or False: A conveyor belt would still work well if its rollers were shaped like cubes.',o:TF,a:1,e:'False. Cubes have corners, so they cannot roll smoothly. Rollers must be round.'},
+    ()=>{const a=12+Math.floor(Math.random()*8),b=2+Math.floor(Math.random()*2);return{t:'rollers',q:`Setup A (no pencils) needed ${a} marbles to move the book. Which result for Setup B (with round pencils) makes the most sense?`,o:[`${b} marbles`,`${a} marbles`,`${a+10} marbles`,`${a*2} marbles`],a:0,e:'Pencils act as rollers and reduce friction, so far fewer marbles are needed.'};}
+  ],
+  ramps:[
+    {q:'What is an inclined plane?',o:['A flat sloping surface with one end higher than the other','A wheel with a rope around it','A bar that turns on a fixed point','A round object that rolls'],a:0,e:'An inclined plane (ramp) is a flat surface set at an angle.'},
+    {q:'Which ramp needs LESS force to move the same box to the same height?',o:['A gentle ramp','A steep ramp','Both need the same force','Lifting straight up'],a:0,e:'A gentle ramp spreads the climb over a longer distance, so less force is needed.'},
+    {q:'What is the trade-off when you use a gentle ramp?',o:['Less force, but a longer distance','More force, but a shorter distance','Less force and a shorter distance','More force and a longer distance'],a:0,e:'Machines trade force for distance: a gentle ramp needs less force but you travel further.'},
+    {tf:1,q:'True or False: Ramp A is 2 m long and Ramp B is 4 m long. Both reach the same platform. Ramp A needs less force.',o:TF,a:1,e:'False. Ramp B is longer, so it is gentler and needs less force.'},
+    {q:'Which of these is an inclined plane used in daily life?',o:['A wheelchair ramp','Window blinds','Bread tongs','A flagpole'],a:0,e:'A wheelchair ramp is a sloping surface that makes it easier to move up to a higher level.'},
+    {q:'How many moving parts does an inclined plane have?',o:['None','One','Two','Three'],a:0,e:'An inclined plane is a simple machine with no moving parts.'},
+    {q:'Compared with using a ramp, lifting a box straight up needs...',o:['the most force','the least force','no force at all','the same force as a gentle ramp'],a:0,e:'Lifting straight up, you hold the whole weight of the box, so it needs the most force.'},
+    ()=>{const W=rnd([10,20]);return{t:'ramps',q:`A box weighs ${W} N. When it is lifted straight up, the Newton meter reads ${W} N. What is the most likely reading when it is pulled up a gentle ramp?`,o:[`${nice(W*0.3)} N`,`${W} N`,`${nice(W*1.5)} N`,`${W*2} N`],a:0,e:'A gentle ramp needs less force than lifting straight up, so the reading is less than the weight.'};},
+    ()=>{const L=rnd([[1.5,2,3,4],[2,2.5,3,5],[1.5,2,4,6]]);return{t:'ramps',q:'Four ramps all reach the same height. Which ramp needs the least force to pull a box up?',o:L.map(x=>`The ${x} m ramp`).reverse(),a:0,e:'The longest ramp is the gentlest, so it needs the least force (but the longest distance).'};}
+  ],
+  levers:[
+    {q:'What are the three parts of a lever?',o:['Effort, load and fulcrum','Wheel, rope and load','Ramp, height and angle','Roller, surface and friction'],a:0,e:'Every lever has an effort (force applied), a load (object moved) and a fulcrum (pivot).'},
+    {q:'What is the fulcrum of a lever?',o:['The point where the lever turns (pivots)','The object being lifted','The force you push with','The longest part of the bar'],a:0,e:'The fulcrum is the fixed point the lever turns around.'},
+    {q:'A boy uses a plank and a stone to lift a heavy rock. To make it EASIER, he should move the stone (fulcrum)...',o:['closer to the rock','closer to his hands','away from the plank','on top of the rock'],a:0,e:'Moving the fulcrum closer to the load makes the effort arm longer, so less force is needed.'},
+    {q:'A lever is force-saving when...',o:['the effort is further from the fulcrum than the load','the effort is closer to the fulcrum than the load','the load is heavier than the effort','the fulcrum is at one end'],a:0,e:'If the effort-to-fulcrum distance is longer than the load-to-fulcrum distance, the lever saves force.'},
+    {q:'Are bread tongs force-saving?',o:['No, the effort is closer to the fulcrum than the load','Yes, the effort is further from the fulcrum','Yes, because they are made of metal','No, because they have no fulcrum'],a:0,e:'With tongs you squeeze near the hinge (fulcrum) and the food is far away, so they are not force-saving.'},
+    {q:'In a wheelbarrow, where is the fulcrum?',o:['The wheel','The handles','The soil in the tray','The legs'],a:0,e:'The wheel is the fulcrum. The load is in the middle and the effort is at the handles.'},
+    {tf:1,q:'True or False: A lever makes a rock weigh less, which is why it is easier to lift.',o:TF,a:1,e:'False. The weight stays the same. The lever reduces the force needed by letting you push over a longer distance.'},
+    {q:'To cut thick card with scissors using the least effort, you should cut...',o:['close to the hinge','with the very tips','with the handles closed','far from the hinge'],a:0,e:'Cutting close to the hinge keeps the load near the fulcrum, which saves force.'},
+    {q:'Bread tongs are not force-saving. Why do we still use them?',o:['They help us grip and pick things up without touching them','They make food lighter','They create more friction','They change the direction of gravity'],a:0,e:'Some levers do not save force but still make our work easier.'},
+    ()=>{const c=rnd([[4,5,2,10],[4,5,4,5],[4,5,10,2],[3,4,6,2],[2,6,3,4],[6,2,4,3],[2,10,4,5],[3,8,6,4]]);const[n,p,e,ans]=c;
+      return{t:'levers',q:`On a number balance, ${n} weights hang at position ${p} on the load side. How many weights are needed at position ${e} on the effort side to balance it?`,
+      o:opts(String(ans),[String(ans+1),String(ans*2),String(ans>1?ans-1:ans+3),String(n*p)]),a:0,e:`Weights x position must match on both sides: ${n} x ${p} = ${n*p}, and ${ans} x ${e} = ${ans*e}.`};}
+  ],
+  pulleys:[
+    {q:'What does a single fixed pulley do?',o:['It changes the direction of the force','It halves the force needed','It makes the load lighter','It removes friction completely'],a:0,e:'A single pulley needs the same effort as the load, but lets you pull down to lift something up.'},
+    {tf:1,q:'True or False: Using one single pulley makes the load lighter, so you need less force than the load\'s weight.',o:TF,a:1,e:'False. With one pulley the effort is about the same as the load. Only the direction changes.'},
+    {q:'In a pulley system, more rope sections holding the load means...',o:['less effort is needed','more effort is needed','the same effort is needed','the load gets heavier'],a:0,e:'More rope sections share the weight, so less effort is needed.'},
+    {q:'When you add more pulleys to lift the same load, you have to...',o:['pull a longer length of rope','pull a shorter length of rope','pull the rope upwards','use a heavier rope'],a:0,e:'You use less force but pull over a longer distance. That is the trade-off.'},
+    {q:'A pulley is a simple machine made of...',o:['a wheel and a rope','a bar and a pivot','a sloping surface','round logs'],a:0,e:'A pulley is a grooved wheel with a rope or chain moving over it.'},
+    {q:'Which of these uses a pulley?',o:['A flagpole','A slide','A seesaw','A wheelchair ramp'],a:0,e:'Flagpoles, cranes, window blinds, wells and elevators all use pulleys.'},
+    {tf:1,q:'True or False: Pulleys can reduce the effort needed, but you must pull the rope a greater distance.',o:TF,a:0,e:'True. Less force, more distance, so the total work stays about the same.'},
+    ()=>{const L=rnd([12,24,60]),n=rnd([1,2,3,4,6]),c=L/n;return{t:'pulleys',q:`A ${L} N load is lifted by a pulley system with ${n} rope section${n>1?'s':''} holding the load. What effort is needed? (Ignore friction.)`,
+      o:opts(nice(c)+' N',[nice(L)+' N',nice(L*2)+' N',nice(L/2)+' N',nice(L/4)+' N',nice(L+n)+' N']),a:0,e:`Effort = load / rope sections = ${L} / ${n} = ${nice(c)} N.`};},
+    ()=>{const n=rnd([2,3,4,6]);return{t:'pulleys',q:`A pulley system has ${n} rope sections holding the load. How much rope must you pull to lift the load by 1 m?`,o:opts(`${n} m`,['1 m',`${nice(1/n)} m`,`${n*2} m`]),a:0,e:`Each of the ${n} rope sections must get 1 m shorter, so you pull ${n} m of rope.`};}
+  ],
+  general:[
+    {q:'What do simple machines do?',o:['Make work easier','Make objects lighter','Create energy from nothing','Stop gravity'],a:0,e:'Simple machines make work easier by changing the size or direction of a force.'},
+    {q:'In a fair test, how many variables should you change?',o:['Only one (the independent variable)','Two','All of them','None'],a:0,e:'Change only one condition. Keep all the others the same so the test is fair.'},
+    {q:'Which measuring tool measures force?',o:['A Newton meter','A thermometer','A measuring cylinder','A timer'],a:0,e:'A Newton meter (spring balance or force meter) measures force in newtons (N).'},
+    {q:'What is the unit of force?',o:['Newton (N)','Gram (g)','Millilitre (ml)','Degree Celsius'],a:0,e:'Force is measured in newtons, written as N.'},
+    {q:'In a fair test, what are control variables?',o:['Conditions that are kept the same','The one condition you change','The results you measure','The equipment list'],a:0,e:'Control variables are kept the same so they do not affect the results.'},
+    {q:'Which of these is NOT one of the simple machines in this unit?',o:['A magnet','A lever','A pulley','A roller'],a:0,e:'This unit covers rollers, inclined planes, levers and pulleys.'},
+    {q:'Which simple machines might the ancient Egyptians have used to build the pyramids?',o:['Rollers, inclined planes and levers','Batteries and motors','Magnets and springs','Engines and wheels with tyres'],a:0,e:'They probably used log rollers, ramps and levers to move giant stone blocks.'},
+    {q:'Which tool would you use to measure the length of the string?',o:['A measuring tape or ruler','A Newton meter','A thermometer','A weighing balance'],a:0,e:'Length is measured with a ruler or measuring tape, in cm.'}
+  ]};
+  const box=$('qz');let Q=[],i=0,score=0,answered=false,log=[];
+  function prep(item,t){const q=typeof item==='function'?item():Object.assign({t},item);q.t=q.t||t;
+    if(!q.tf){const idx=shuffle([...q.o.keys()]);q.a=idx.indexOf(q.a);q.o=idx.map(k=>q.o[k]);}return q;}
+  function build(){let list=[];['rollers','ramps','levers','pulleys'].forEach(t=>shuffle(POOL[t].slice()).slice(0,2).forEach(x=>list.push(prep(x,t))));
+    shuffle(POOL.general.slice()).slice(0,2).forEach(x=>list.push(prep(x,'general')));Q=shuffle(list);i=0;score=0;log=[];show();}
+  function dots(){return '<div class="qdots">'+Q.map((q,k)=>`<span class="${k<log.length?(log[k].ok?'ok':'no'):k===i?'cur':''}"></span>`).join('')+'</div>';}
+  function show(){answered=false;const q=Q[i];
+    box.innerHTML=`<div class="qtop"><span class="qtag">${TNAME[q.t]}</span><span class="qcount">Question ${i+1} of ${Q.length}</span><span class="qscore">Score: ${score}</span>
+      <button class="btn reset" id="qRestart" style="flex:0 0 auto"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v5h5"/></svg>New quiz</button></div>
+      ${dots()}<div class="qbody"><div class="qpic">${ICON[q.t]}</div><h2 class="qq">${q.q}</h2></div>
+      <div class="qopts">${q.o.map((o,k)=>`<button class="qopt" data-k="${k}"><span class="let">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div>
+      <div class="qfb" id="qFb"></div><div class="qnav"><button class="btn primary" id="qNext" disabled>${i<Q.length-1?'Next question':'See my score'}</button></div>`;
+    box.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>pick(+b.dataset.k));
+    $('qNext').onclick=()=>{if(i<Q.length-1){i++;show();}else end();};$('qRestart').onclick=build;box.scrollTop=0;}
+  function pick(k){if(answered)return;answered=true;const q=Q[i],ok=k===q.a;if(ok)score++;log.push({q:q.q,ok,your:q.o[k],right:q.o[q.a]});
+    box.querySelectorAll('.qopt').forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add('ok');else if(j===k)b.classList.add('no');});
+    const fb=$('qFb');fb.className='qfb '+(ok?'ok':'no');fb.innerHTML=(ok?'<b>Correct!</b> ':`<b>Not quite.</b> The answer is <b>${q.o[q.a]}</b>. `)+q.e;
+    box.querySelector('.qscore').textContent='Score: '+score;box.querySelector('.qdots').outerHTML=dots();$('qNext').disabled=false;}
+  function end(){const msg=score>=9?'Outstanding! You are a simple machines expert.':score>=7?'Great work! Review the ones you missed.':score>=5?'Good effort. Try the simulations again, then retake the quiz.':'Keep practising. Explore each tab, then try a new quiz.';
+    box.innerHTML=`<div class="qend"><div class="qtop" style="justify-content:center"><span class="qtag">Quiz complete</span></div>${dots()}
+      <p style="font-size:1.3rem;font-weight:800;margin:.8rem 0 .2rem">Your score</p><div class="qbig">${score} / ${Q.length}</div>
+      <p style="font-size:1.2rem;margin:.6rem 0">${msg}</p>
+      <div class="qnav" style="justify-content:center"><button class="btn primary" id="qAgain">Try a new quiz</button></div>
+      <div class="qrev">${log.map((l,k)=>`<div class="${l.ok?'':'no'}"><b>${k+1}. ${l.q}</b><br>Your answer: ${l.your}${l.ok?'':' &nbsp;|&nbsp; Correct answer: <b>'+l.right+'</b>'}</div>`).join('')}</div></div>`;
+    $('qAgain').onclick=build;box.scrollTop=0;}
+  build();
+})();
+</script>
+</body>
+</html>
